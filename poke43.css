@@ -4,15 +4,7 @@
   Copyright (c) 2018 Radoslav Peev <rpeev@ymail.com> (MIT License)
 */
 
-@keyframes fade-out-fade-in {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-.blink-smooth { animation: 1s ease 0.3s infinite fade-out-fade-in; }
-
-.poke {
+.poke43-editor {
   min-height: 1.2em;
   margin-top: -1em;
   border: 1px solid gray;
@@ -21,29 +13,39 @@
   font-size: 1.4em;
 }
 
-.poke-line-part1 {
+.poke43-line-part1 {
 
 }
 
-.poke-line-caret {
+.poke43-line-caret {
   position: relative;
   left: -1px;
   border-right: 3px solid navy;
 }
 
-.poke-line-part2 {
+@keyframes poke43-fade-out-fade-in {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.poke43-blink-smooth {
+  animation: 1s ease 0.3s infinite poke43-fade-out-fade-in;
+}
+
+.poke43-line-part2 {
   position: relative;
   left: -3px;
 }
 
-.keyboard {
+.poke43-keyboard {
   /*padding: 1ex;
   border: 1px solid gray;
   border-radius: 0.5ex;
   box-shadow: 0 0 1em gray;*/
 }
 
-.key {
+.poke43-key {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -54,75 +56,74 @@
   font-size: 1.5em;
 }
 
-.key-character {
+.poke43-key-test {
+  width: 70px;
+  height: 70px;
+}
+
+.poke43-key-test-lg {
+  width: 100px;
+  height: 100px;
+}
+
+.poke43-key-char {
   border-color: green;
 }
 
-.key-punct {
+.poke43-key-punct {
   background: lightgray;
 }
 
-.key-delim {
+.poke43-key-delim {
   background: lightgray;
 }
 
-.key-symbol {
+.poke43-key-sym {
   width: 70px;
   height: 55px;
   background: #cedefa;
 }
 
-.key-danger {
+.poke43-key-danger {
   border-color: maroon !important;
 }
 
-.key-test {
-  width: 70px;
-  height: 70px;
-  border-radius: 0.5ex;
-}
-
-.key-test-lg {
-  width: 100px;
-  height: 100px;
-}
-
-.key-flash {
+.poke43-key-flash {
   background: gray;
 }
 
-.key-flash0 {
+.poke43-key-flash0 {
 
 }
 
-.key-flash1 {
+.poke43-key-flash1 {
 
 }
 
-.key-flash2 {
+.poke43-key-flash2 {
 
 }
 
-.key-flash3 {
+.poke43-key-flash3 {
 
 }
 
-.key-flash4 {
+.poke43-key-flash4 {
 
 }
 
-.key-flash5 {
+.poke43-key-flash5 {
 
 }
 
-.key-flash6 {
+.poke43-key-flash6 {
 
 }
 
-.key-flash7 {
+.poke43-key-flash7 {
 
 }
 
-.key-flash8 {
+.poke43-key-flash8 {
 
 }

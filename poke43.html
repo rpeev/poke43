@@ -43,20 +43,20 @@
 
     <script>
 document.addEventListener('DOMContentLoaded', function () {
-  let poke = new Poke(document.getElementById('poke')),
-    keyboard = new Keyboard(document.getElementById('keyboard'));
+  let editor = new poke43.Editor(document.getElementById('editor')),
+    keyboard = new poke43.Keyboard(document.getElementById('keyboard'));
 
   ['eq', 'plus', 'amp', 'ka-ching', 'num1', 'num2'].forEach(k => {
-    new PokeSymbolKey(document.getElementById(`ins-${k}`), poke);
+    new poke43.EditorKeySym(document.getElementById(`key-${k}`), editor);
   });
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].forEach(k => {
-    new PokeCharacterKey(document.getElementById(`ins-${k}`), poke);
+    new poke43.EditorKeyChar(document.getElementById(`key-${k}`), editor);
   });
   ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'paren'].forEach(k => {
-    new PokeCharacterKey(document.getElementById(`ins-${k}`), poke);
+    new poke43.EditorKeyChar(document.getElementById(`key-${k}`), editor);
   });
   ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'dot', 'bang', 'quot'].forEach(k => {
-    new PokeCharacterKey1(document.getElementById(`ins-${k}`), poke);
+    new poke43.EditorKeyChar1(document.getElementById(`key-${k}`), editor);
   });
 });
     </script>
@@ -65,38 +65,38 @@ document.addEventListener('DOMContentLoaded', function () {
   <body>
 <h1 id="about">Poke43</h1>
 
-<div id="poke">line</div>
+<div id="editor">line</div>
 <div class="flex-row-center" id="keyboard">
   <table class="frame">
     <tr>
-      <td id="ins-eq"
+      <td id="key-eq"
         data-text="="
         data-text1="/"
         data-text2=">"
         data-text3="<"
         data-text4="\">=</td>
-      <td id="ins-plus"
+      <td id="key-plus"
         data-text="+"
         data-text1="*"
         data-text2="%"
         data-text3="_"
         data-text4="-">+</td>
-      <td id="ins-amp"
+      <td id="key-amp"
         data-text="&"
         data-text1="~"
         data-text2="#"
         data-text3="^"
         data-text4="|">&amp;</td>
-      <td id="ins-ka-ching"
+      <td id="key-ka-ching"
         data-text="$"
         data-text4="@">$</td>
-      <td id="ins-num1"
+      <td id="key-num1"
         data-text="0"
         data-text1="1"
         data-text2="2"
         data-text3="3"
         data-text4="4">0</td>
-      <td id="ins-num2"
+      <td id="key-num2"
         data-text="5"
         data-text1="6"
         data-text2="7"
@@ -104,40 +104,52 @@ document.addEventListener('DOMContentLoaded', function () {
         data-text4="9">5</td>
     </tr>
     <tr>
-      <td id="ins-q" data-text="q">q</td>
-      <td id="ins-w" data-text="w">w</td>
-      <td id="ins-e" data-text="e">e</td>
-      <td id="ins-r" data-text="r">r</td>
-      <td id="ins-t" data-text="t">t</td>
-      <td id="ins-y" data-text="y">y</td>
-      <td id="ins-u" data-text="u">u</td>
-      <td id="ins-i" data-text="i">i</td>
-      <td id="ins-o" data-text="o">o</td>
-      <td id="ins-p" data-text="p">p</td>
+      <td id="key-q" data-text="q">q</td>
+      <td id="key-w" data-text="w">w</td>
+      <td id="key-e" data-text="e">e</td>
+      <td id="key-r" data-text="r">r</td>
+      <td id="key-t" data-text="t">t</td>
+      <td id="key-y" data-text="y">y</td>
+      <td id="key-u" data-text="u">u</td>
+      <td id="key-i" data-text="i">i</td>
+      <td id="key-o" data-text="o">o</td>
+      <td id="key-p" data-text="p">p</td>
     </tr>
     <tr>
-      <td id="ins-a" data-text="a">a</td>
-      <td id="ins-s" data-text="s">s</td>
-      <td id="ins-d" data-text="d">d</td>
-      <td id="ins-f" data-text="f">f</td>
-      <td id="ins-g" data-text="g">g</td>
-      <td id="ins-h" data-text="h">h</td>
-      <td id="ins-j" data-text="j">j</td>
-      <td id="ins-k" data-text="k">k</td>
-      <td id="ins-l" data-text="l">l</td>
-      <td class="key-delim" id="ins-paren" data-text="()" data-text1="{}" data-text3="[]">( )</td>
+      <td id="key-a" data-text="a">a</td>
+      <td id="key-s" data-text="s">s</td>
+      <td id="key-d" data-text="d">d</td>
+      <td id="key-f" data-text="f">f</td>
+      <td id="key-g" data-text="g">g</td>
+      <td id="key-h" data-text="h">h</td>
+      <td id="key-j" data-text="j">j</td>
+      <td id="key-k" data-text="k">k</td>
+      <td id="key-l" data-text="l">l</td>
+      <td class="key-delim" id="key-paren"
+        data-text="()"
+        data-text1="{}"
+        data-text3="[]">( )</td>
     </tr>
     <tr>
-      <td id="ins-z" data-text="z">z</td>
-      <td id="ins-x" data-text="x">x</td>
-      <td id="ins-c" data-text="c">c</td>
-      <td id="ins-v" data-text="v">v</td>
-      <td id="ins-b" data-text="b">b</td>
-      <td id="ins-n" data-text="n">n</td>
-      <td id="ins-m" data-text="m">m</td>
-      <td class="key-punct" id="ins-dot" data-text="." data-text1=";" data-text3=",">.</td>
-      <td class="key-punct" id="ins-bang" data-text="!" data-text1="?" data-text3=":">!</td>
-      <td class="key-delim" id="ins-quot" data-text='""' data-text1="``" data-text3="''">""</td>
+      <td id="key-z" data-text="z">z</td>
+      <td id="key-x" data-text="x">x</td>
+      <td id="key-c" data-text="c">c</td>
+      <td id="key-v" data-text="v">v</td>
+      <td id="key-b" data-text="b">b</td>
+      <td id="key-n" data-text="n">n</td>
+      <td id="key-m" data-text="m">m</td>
+      <td class="key-punct" id="key-dot"
+        data-text="."
+        data-text1=";"
+        data-text3=",">.</td>
+      <td class="key-punct" id="key-bang"
+        data-text="!"
+        data-text1="?"
+        data-text3=":">!</td>
+      <td class="key-delim" id="key-quot"
+        data-text='""'
+        data-text1="``"
+        data-text3="''">""</td>
     </tr>
   </table>
 </div>

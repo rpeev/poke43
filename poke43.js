@@ -4,20 +4,22 @@
   Copyright (c) 2018 Radoslav Peev <rpeev@ymail.com> (MIT License)
 */
 
-class Poke {
+(function () {
+
+class Editor {
   constructor(el) {
     this._el = el;
-    this._el.classList.add('poke');
+    this._el.classList.add('poke43-editor');
     this._content = this._el.textContent;
     this._pos = this._content.length;
     this._part1 = document.createElement('span');
     this._caret = document.createElement('span');
     this._part2 = document.createElement('span');
 
-    this._part1.classList.add('poke-line-part1');
-    this._caret.classList.add('poke-line-caret');
-    this._caret.classList.add('blink-smooth');
-    this._part2.classList.add('poke-line-part2');
+    this._part1.classList.add('poke43-line-part1');
+    this._caret.classList.add('poke43-line-caret');
+    this._caret.classList.add('poke43-blink-smooth');
+    this._part2.classList.add('poke43-line-part2');
 
     this._el.textContent = '';
     this._el.appendChild(this._part1);
@@ -90,7 +92,7 @@ class Poke {
 class Keyboard {
   constructor(el) {
     this._el = el;
-    this._el.classList.add('keyboard');
+    this._el.classList.add('poke43-keyboard');
   }
 }
 
@@ -110,7 +112,7 @@ class Key {
     this._dispatch = this._dispatch4cross;
     this._flashDuration = 100;
 
-    classes.add('key');
+    classes.add('poke43-key');
 
     this._hammer.
       get('swipe').
@@ -178,10 +180,10 @@ class Key {
   _flash(ev, index, text, command) {
     let classes = this._el.classList;
 
-    classes.add('key-flash');
+    classes.add('poke43-key-flash');
     classes.add(`key-flash${index}`);
     setTimeout(() => {
-      classes.remove('key-flash');
+      classes.remove('poke43-key-flash');
       classes.remove(`key-flash${index}`);
     }, this._flashDuration);
   }
@@ -208,60 +210,73 @@ class Key {
   };
 });
 
-class PokeKey extends Key {
-  constructor(el, poke) {
+class EditorKey extends Key {
+  constructor(el, editor) {
     super(el);
 
-    this._poke = poke;
+    this._editor = editor;
   }
 
   _execute(ev, index, text, command) {
     //super._execute(...arguments);
 
-    text && this._poke.insert(text);
-    command && this._poke[command]();
+    text && this._editor.insert(text);
+    command && this._editor[command]();
   }
 }
 
-class PokeCharacterKey extends PokeKey {
-  constructor(el, poke) {
+class EditorKeyChar extends EditorKey {
+  constructor(el, editor) {
     let classes = el.classList;
 
-    super(el, poke);
+    super(el, editor);
 
     this._text1 = this._text1 || this._text0.toUpperCase();
     this._command2 = this._command2 || 'moveForward';
     this._text3 = this._text3 || ' ';
     this._command4 = this._command4 || 'moveBackward';
 
-    classes.add('key-character');
+    classes.add('poke43-key-char');
   }
 }
 
-class PokeCharacterKey1 extends PokeKey {
-  constructor(el, poke) {
+class EditorKeyChar1 extends EditorKey {
+  constructor(el, editor) {
     let classes = el.classList;
 
-    super(el, poke);
+    super(el, editor);
 
     this._text1 = this._text1 || this._text0.toUpperCase();
     this._command2 = this._command2 || 'deleteForward';
     this._text3 = this._text3 || '\n';
     this._command4 = this._command4 || 'deleteBackward';
 
-    classes.add('key-character');
-    classes.add('key-danger');
+    classes.add('poke43-key-char');
+    classes.add('poke43-key-danger');
   }
 }
 
-class PokeSymbolKey extends PokeKey {
-  constructor(el, poke) {
+class EditorKeySym extends EditorKey {
+  constructor(el, editor) {
     let classes = el.classList;
 
-    super(el, poke);
+    super(el, editor);
 
     this._dispatch = this._dispatch4diag;
 
-    classes.add('key-symbol');
+    classes.add('poke43-key-sym');
   }
 }
+
+// exports
+window.poke43 = {
+  Editor: Editor,
+  Keyboard: Keyboard,
+  Key: Key,
+  EditorKey: EditorKey,
+  EditorKeyChar: EditorKeyChar,
+  EditorKeyChar1: EditorKeyChar1,
+  EditorKeySym: EditorKeySym
+};
+
+})();
