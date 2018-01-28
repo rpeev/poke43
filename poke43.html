@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   //p(pageEnv(), 'Environment');
 
-  ['eq', 'plus', 'amp', 'ka-ching', 'num1', 'num2'].forEach(k => {
+  ['eq', 'plus', 'amp', 'hash', 'num1', 'num2'].forEach(k => {
     new poke43.EditorKeySym(document.getElementById(`key-${k}`), editor);
   });
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].forEach(k => {
@@ -73,37 +73,37 @@ document.addEventListener('DOMContentLoaded', function () {
     <tr>
       <td id="key-eq"
         data-text="="
-        data-text1="/"
-        data-text2=">"
-        data-text3="<"
-        data-text4="\">=</td>
+        data-text2="/"
+        data-text4=">"
+        data-text6="<"
+        data-text8="\">=</td>
       <td id="key-plus"
         data-text="+"
-        data-text1="*"
-        data-text2="%"
-        data-text3="_"
-        data-text4="-">+</td>
+        data-text2="-"
+        data-text4="_"
+        data-text6="%"
+        data-text8="*">+</td>
       <td id="key-amp"
         data-text="&"
-        data-text1="~"
-        data-text2="#"
-        data-text3="^"
-        data-text4="|">&amp;</td>
-      <td id="key-ka-ching"
-        data-text="$"
-        data-text4="@">$</td>
+        data-text2="|"
+        data-text4="$"
+        data-text6="^"
+        data-text8="~">&amp;</td>
+      <td id="key-hash"
+        data-text="#"
+        data-text8="@">#</td>
       <td id="key-num1"
         data-text="0"
-        data-text1="1"
         data-text2="2"
-        data-text3="3"
-        data-text4="4">0</td>
+        data-text4="4"
+        data-text6="3"
+        data-text8="1">0</td>
       <td id="key-num2"
         data-text="5"
-        data-text1="6"
         data-text2="7"
-        data-text3="8"
-        data-text4="9">5</td>
+        data-text4="9"
+        data-text6="8"
+        data-text8="6">5</td>
     </tr>
     <tr>
       <td id="key-q" data-text="q">q</td>
@@ -128,9 +128,9 @@ document.addEventListener('DOMContentLoaded', function () {
       <td id="key-k" data-text="k">k</td>
       <td id="key-l" data-text="l">l</td>
       <td class="poke43-key-delim" id="key-paren"
-        data-text="()"
-        data-text1="{}"
-        data-text3="[]">( )</td>
+        data-text="()" data-hint="()"
+        data-text1="{}" data-hint1="{}"
+        data-text5="[]" data-hint5="[]">( )</td>
     </tr>
     <tr>
       <td id="key-z" data-text="z">z</td>
@@ -143,28 +143,28 @@ document.addEventListener('DOMContentLoaded', function () {
       <td class="poke43-key-punct" id="key-dot"
         data-text="."
         data-text1=";"
-        data-text3=",">.</td>
+        data-text5="," data-hint5=",">.</td>
       <td class="poke43-key-punct" id="key-bang"
         data-text="!"
         data-text1="?"
-        data-text3=":">!</td>
+        data-text5=":" data-hint5=":">!</td>
       <td class="poke43-key-delim" id="key-quot"
-        data-text='""'
-        data-text1="``"
-        data-text3="''">""</td>
+        data-text='""' data-hint='""'
+        data-text1="``" data-hint1="``"
+        data-text5="''" data-hint5="''">""</td>
     </tr>
   </table>
 </div>
 
 <ul>
-  <li>tap - enter key value</li>
-  <li>swipe character up - upcase character</li>
-  <li>swipe down any character with a green border - space</li>
-  <li>swipe down any character with a red border - enter</li>
-  <li>swipe left/right any key with a green border - move cursor (one symbol)</li>
-  <li>swipe left/right any key with a red border - delete from cursor (one symbol)</li>
-  <li>swipe up/down . ! "" () - alternatives</li>
-  <li>swipe blue keys diagonally - alternatives</li>
+  <li>tap - primary symbol(s)</li>
+  <li>swipe character key up - upcase character</li>
+  <li>swipe green border character key down - space</li>
+  <li>swipe red border character key down - enter</li>
+  <li>swipe green border key left/right - move (one symbol)</li>
+  <li>swipe red border key left/right - delete (one symbol)</li>
+  <li>swipe non character key below top row up/down - secondary symbol(s)</li>
+  <li>swipe top row key diagonally (all directions) - secondary symbol(s)</li>
 </ul>
   </body>
 </html>
