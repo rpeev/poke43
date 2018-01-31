@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.3.0
+
+* Package default layout inside implementation to make client code much simpler
+
 ## 1.2.0
 
 * Basic common layout ready

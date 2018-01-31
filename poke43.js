@@ -6,15 +6,37 @@
 
 (function () {
 
+class Poke {
+  constructor(el) {
+    let classes = el.classList;
+
+    this._el = el;
+    this._elEditor = document.createElement('div');
+    this._elKeyboard = document.createElement('div');
+
+    classes.add('poke43-poke');
+
+    this._el.textContent = '';
+    this._el.appendChild(this._elEditor);
+    this._el.appendChild(this._elKeyboard);
+
+    this._editor = new poke43.Editor(this._elEditor);
+    this._keyboard = new poke43.EditorKeyboard(this._editor, this._elKeyboard);
+  }
+}
+
 class Editor {
   constructor(el) {
+    let classes = el.classList;
+
     this._el = el;
-    this._el.classList.add('poke43-editor');
     this._content = this._el.textContent;
     this._pos = this._content.length;
     this._part1 = document.createElement('span');
     this._caret = document.createElement('span');
     this._part2 = document.createElement('span');
+
+    classes.add('poke43-editor');
 
     this._part1.classList.add('poke43-line-part1');
     this._caret.classList.add('poke43-line-caret');
@@ -63,6 +85,11 @@ class Editor {
     this._update();
   }
 
+  moveForward2() {
+    this.moveForward();
+    this.moveForward();
+  }
+
   deleteBackward() {
     if (this._pos === 0) {
       throw new RangeError('Cannot delete before start');
@@ -89,12 +116,15 @@ class Editor {
   }
 }
 
-class Keyboard {
-  constructor(el) {
+class EditorKeyboard {
+  constructor(editor, el) {
     let classes = el.classList;
 
+    this._editor = editor;
     this._el = el;
     this._hammer = new Hammer(this._el);
+    this._rowEls = this._getRowEls();
+    this._keys = this._getKeys();
 
     classes.add('poke43-keyboard');
 
@@ -107,22 +137,126 @@ class Keyboard {
         ev.preventDefault(); // Prevent zoom on double-tap
       }).
       on('swipe', ev => {});
+
+    if (this._rowEls.length === 0) {
+      this._renderDefaultLayout();
+
+      this._rowEls = this._getRowEls();
+      this._keys = this._getKeys();
+    }
+  }
+
+  _getRowEls() {
+    return [].slice.call(
+      this._el.querySelectorAll('.poke43-keyboard-row')
+    );
+  }
+
+  _getKeys() {
+    return [].map.call(
+      this._el.querySelectorAll('.poke43-keyboard-row > span'),
+      elKey => new poke43[elKey.dataset.type](this._editor, elKey)
+    );
+  }
+
+  _renderDefaultLayout() {
+    this._el.innerHTML = `<div class="poke43-keyboard-row">
+<span data-type="EditorSymKey"
+  data-text="="
+  data-text2="/"
+  data-text4=">"
+  data-text6="<"
+  data-text8="\\"></span>
+<span data-type="EditorSymKey"
+  data-text="+"
+  data-text2="-"
+  data-text4="_"
+  data-text6="%"
+  data-text8="*"></span>
+<span data-type="EditorSymKey"
+  data-text="&"
+  data-text2="|"
+  data-text4="$"
+  data-text6="^"
+  data-text8="~"></span>
+<span data-type="EditorSymKey"
+  data-text="()"
+  data-text2="#"
+  data-text4="{}"
+  data-text6="[]"
+  data-text8="@"></span>
+<span data-type="EditorSymKey"
+  data-text='""' data-hint='"'
+  data-text2="?"
+  data-text4="\`\`" data-hint4="\`"
+  data-text6="''" data-hint6="'"
+  data-text8="!"></span>
+<span data-type="EditorSymKey"
+  data-text=";"
+  data-text2=": " data-command2="moveForward" data-hint2=":"
+  data-text4="."
+  data-text6=", " data-command6="moveForward" data-hint6=","
+  data-text8="..." data-command8="moveForward2"></span>
+<span data-type="EditorSymKey"
+  data-text="0"
+  data-text2="2"
+  data-text4="4"
+  data-text6="3"
+  data-text8="1"></span>
+<span data-type="EditorSymKey"
+  data-text="5"
+  data-text2="7"
+  data-text4="9"
+  data-text6="8"
+  data-text8="6"></span>
+    </div>
+    <div class="poke43-keyboard-row">
+<span data-type="EditorCharKey" data-text="q"></span>
+<span data-type="EditorCharKey" data-text="w"></span>
+<span data-type="EditorCharKey" data-text="e"></span>
+<span data-type="EditorCharKey" data-text="r"></span>
+<span data-type="EditorCharKey" data-text="t"></span>
+<span data-type="EditorCharKey" data-text="y"></span>
+<span data-type="EditorCharKey" data-text="u"></span>
+<span data-type="EditorCharKey" data-text="i"></span>
+<span data-type="EditorCharKey" data-text="o"></span>
+<span data-type="EditorCharKey" data-text="p"></span>
+    </div>
+    <div class="poke43-keyboard-row">
+<span data-type="EditorCharKey" data-text="a"></span>
+<span data-type="EditorCharKey" data-text="s"></span>
+<span data-type="EditorCharKey" data-text="d"></span>
+<span data-type="EditorCharKey" data-text="f"></span>
+<span data-type="EditorCharKey" data-text="g"></span>
+<span data-type="EditorCharKey" data-text="h"></span>
+<span data-type="EditorCharKey" data-text="j"></span>
+<span data-type="EditorCharKey" data-text="k"></span>
+<span data-type="EditorCharKey" data-text="l"></span>
+    </div>
+    <div class="poke43-keyboard-row">
+<span data-type="EditorCharKey1" data-text="z"></span>
+<span data-type="EditorCharKey1" data-text="x"></span>
+<span data-type="EditorCharKey1" data-text="c"></span>
+<span data-type="EditorCharKey1" data-text="v"></span>
+<span data-type="EditorCharKey1" data-text="b"></span>
+<span data-type="EditorCharKey1" data-text="n"></span>
+<span data-type="EditorCharKey1" data-text="m"></span>
+    </div>`;
   }
 }
 
 class Key {
-  constructor(el, opts = {}) {
-    let classes = el.classList,
-      ds = el.dataset;
+  constructor(el, props = el.dataset) {
+    let classes = el.classList;
 
     this._el = el;
-    this[`_text${0}`] = ds.text;
-    this[`_command${0}`] = ds.command;
-    this[`_hint${0}`] = ds.hint;
+    this[`_text${0}`] = props.text;
+    this[`_command${0}`] = props.command;
+    this[`_hint${0}`] = props.hint;
     for (let i = 1; i < 9; i++) {
-      this[`_text${i}`] = ds[`text${i}`];
-      this[`_command${i}`] = ds[`command${i}`];
-      this[`_hint${i}`] = ds[`hint${i}`];
+      this[`_text${i}`] = props[`text${i}`];
+      this[`_command${i}`] = props[`command${i}`];
+      this[`_hint${i}`] = props[`hint${i}`];
     }
     this._hammer = new Hammer(this._el);
     this._dispatchSwipe = this._dispatchSwipe4cross;
@@ -142,12 +276,6 @@ class Key {
         this.onCommand(ev);
       }).
       on('swipe', ev => this._dispatchSwipe(ev.angle).call(this, ev));
-
-    for (let k in opts) {
-      if (k.match(/^on[A-Z]/)) {
-        this[k] = opts[k];
-      }
-    }
   }
 
   _dispatchSwipe4cross(angle) {
@@ -268,8 +396,8 @@ class Key {
 });
 
 class EditorKey extends Key {
-  constructor(el, editor) {
-    super(el);
+  constructor(editor, el, props = el.dataset) {
+    super(el, props);
 
     this._editor = editor;
   }
@@ -282,11 +410,11 @@ class EditorKey extends Key {
   }
 }
 
-class EditorKeyChar extends EditorKey {
-  constructor(el, editor) {
+class EditorCharKey extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
     let classes = el.classList;
 
-    super(el, editor);
+    super(editor, el, props);
 
     this._text1 = this._text1 || this._text0.toUpperCase();
     this._command3 = this._command3 || 'moveForward';
@@ -300,11 +428,11 @@ class EditorKeyChar extends EditorKey {
   }
 }
 
-class EditorKeyChar1 extends EditorKey {
-  constructor(el, editor) {
+class EditorCharKey1 extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
     let classes = el.classList;
 
-    super(el, editor);
+    super(editor, el, props);
 
     this._text1 = this._text1 || this._text0.toUpperCase();
     this._command3 = this._command3 || 'deleteForward';
@@ -319,11 +447,11 @@ class EditorKeyChar1 extends EditorKey {
   }
 }
 
-class EditorKeySym extends EditorKey {
-  constructor(el, editor) {
+class EditorSymKey extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
     let classes = el.classList;
 
-    super(el, editor);
+    super(editor, el, props);
 
     this._dispatchSwipe = this._dispatchSwipe4diag;
     this._renderHints = this._renderHints4diag;
@@ -336,13 +464,14 @@ class EditorKeySym extends EditorKey {
 
 // exports
 window.poke43 = {
+  Poke: Poke,
   Editor: Editor,
-  Keyboard: Keyboard,
+  EditorKeyboard: EditorKeyboard,
   Key: Key,
   EditorKey: EditorKey,
-  EditorKeyChar: EditorKeyChar,
-  EditorKeyChar1: EditorKeyChar1,
-  EditorKeySym: EditorKeySym
+  EditorCharKey: EditorCharKey,
+  EditorCharKey1: EditorCharKey1,
+  EditorSymKey: EditorSymKey
 };
 
 })();
