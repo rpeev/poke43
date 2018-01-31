@@ -74,16 +74,16 @@
   font-size: 1.4em;
 }
 
+.poke43-key-keyboard {
+  border-color: #cedefa !important;
+}
+
+.poke43-key-dummy {
+  visibility: hidden;
+}
+
 .poke43-key-char {
   border-color: green;
-}
-
-.poke43-key-punct {
-  background: #dadada;
-}
-
-.poke43-key-delim {
-  background: #dadada;
 }
 
 .poke43-key-sym {
@@ -93,8 +93,6 @@
 }
 
 .poke43-key-char td[rowspan],
-.poke43-key-punct td[rowspan],
-.poke43-key-delim td[rowspan],
 .poke43-key-sym td[rowspan] {
   color: black;
   font-size: 100%;
@@ -102,12 +100,6 @@
 
 .poke43-key-char td {
   color: #aeaeae;
-  font-size: 65%;
-}
-
-.poke43-key-punct td,
-.poke43-key-delim td {
-  color: #666666;
   font-size: 65%;
 }
 

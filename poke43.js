@@ -125,6 +125,7 @@ class EditorKeyboard {
     this._hammer = new Hammer(this._el);
     this._rowEls = this._getRowEls();
     this._keys = this._getKeys();
+    this._currLangLayout = 'enUSQwerty';
 
     classes.add('poke43-keyboard');
 
@@ -146,6 +147,21 @@ class EditorKeyboard {
     }
   }
 
+  cycleLangLayouts() {
+    switch (this._currLangLayout) {
+    case 'enUSQwerty':
+      this._enUSQwertyIndices.forEach(i => this._rowEls[i].style.display = 'none');
+      this._bgBGPhoneticIndices.forEach(i => this._rowEls[i].style.display = 'block');
+      this._currLangLayout = 'bgBGPhonetic';
+      break;
+    case 'bgBGPhonetic':
+      this._enUSQwertyIndices.forEach(i => this._rowEls[i].style.display = 'block');
+      this._bgBGPhoneticIndices.forEach(i => this._rowEls[i].style.display = 'none');
+      this._currLangLayout = 'enUSQwerty';
+      break;
+    }
+  }
+
   _getRowEls() {
     return [].slice.call(
       this._el.querySelectorAll('.poke43-keyboard-row')
@@ -155,12 +171,14 @@ class EditorKeyboard {
   _getKeys() {
     return [].map.call(
       this._el.querySelectorAll('.poke43-keyboard-row > span'),
-      elKey => new poke43[elKey.dataset.type](this._editor, elKey)
+      elKey => new poke43[elKey.dataset.type](
+        (elKey.dataset.type === 'KeyboardKey') ? this : this._editor, elKey
+      )
     );
   }
 
-  _renderDefaultLayout() {
-    this._el.innerHTML = `<div class="poke43-keyboard-row">
+  get _symRowLayout() {
+    return `<div class="poke43-keyboard-row">
 <span data-type="EditorSymKey"
   data-text="="
   data-text2="/"
@@ -209,8 +227,15 @@ class EditorKeyboard {
   data-text4="9"
   data-text6="8"
   data-text8="6"></span>
-    </div>
-    <div class="poke43-keyboard-row">
+    </div>`;
+  }
+
+  get _enUSQwertyIndices() {
+    return [1, 2, 3];
+  }
+
+  get _enUSQwertyLayout() {
+    return `<div class="poke43-keyboard-row">
 <span data-type="EditorCharKey" data-text="q"></span>
 <span data-type="EditorCharKey" data-text="w"></span>
 <span data-type="EditorCharKey" data-text="e"></span>
@@ -234,6 +259,9 @@ class EditorKeyboard {
 <span data-type="EditorCharKey" data-text="l"></span>
     </div>
     <div class="poke43-keyboard-row">
+<span data-type="KeyboardKey"
+  data-text="\u{1f310}"
+  data-command="cycleLangLayouts"></span>
 <span data-type="EditorCharKey1" data-text="z"></span>
 <span data-type="EditorCharKey1" data-text="x"></span>
 <span data-type="EditorCharKey1" data-text="c"></span>
@@ -241,7 +269,59 @@ class EditorKeyboard {
 <span data-type="EditorCharKey1" data-text="b"></span>
 <span data-type="EditorCharKey1" data-text="n"></span>
 <span data-type="EditorCharKey1" data-text="m"></span>
+<span class="poke43-key-dummy" data-type="KeyboardKey"></span>
     </div>`;
+  }
+
+  get _bgBGPhoneticIndices() {
+    return [4, 5, 6];
+  }
+
+  get _bgBGPhoneticLayout() {
+    return `<div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorCharKey" data-text="я"></span>
+<span data-type="EditorCharKey" data-text="в"></span>
+<span data-type="EditorCharKey" data-text="е"></span>
+<span data-type="EditorCharKey" data-text="р"></span>
+<span data-type="EditorCharKey" data-text="т"></span>
+<span data-type="EditorCharKey" data-text="ъ"></span>
+<span data-type="EditorCharKey" data-text="у"></span>
+<span data-type="EditorCharKey" data-text="и"></span>
+<span data-type="EditorCharKey" data-text="о"></span>
+<span data-type="EditorCharKey" data-text="п"></span>
+<span data-type="EditorCharKey" data-text="ю"></span>
+    </div>
+    <div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorCharKey" data-text="а"></span>
+<span data-type="EditorCharKey" data-text="с"></span>
+<span data-type="EditorCharKey" data-text="д"></span>
+<span data-type="EditorCharKey" data-text="ф"></span>
+<span data-type="EditorCharKey" data-text="г"></span>
+<span data-type="EditorCharKey" data-text="х"></span>
+<span data-type="EditorCharKey" data-text="й"></span>
+<span data-type="EditorCharKey" data-text="к"></span>
+<span data-type="EditorCharKey" data-text="л"></span>
+<span data-type="EditorCharKey" data-text="ш"></span>
+<span data-type="EditorCharKey" data-text="щ"></span>
+    </div>
+    <div class="poke43-keyboard-row" style="display: none;">
+<span data-type="KeyboardKey"
+  data-text="\u{1f310}"
+  data-command="cycleLangLayouts"></span>
+<span data-type="EditorCharKey1" data-text="з"></span>
+<span data-type="EditorCharKey1" data-text="ь"></span>
+<span data-type="EditorCharKey1" data-text="ц"></span>
+<span data-type="EditorCharKey1" data-text="ж"></span>
+<span data-type="EditorCharKey1" data-text="б"></span>
+<span data-type="EditorCharKey1" data-text="н"></span>
+<span data-type="EditorCharKey1" data-text="м"></span>
+<span data-type="EditorCharKey1" data-text="ч"></span>
+<span class="poke43-key-dummy" data-type="KeyboardKey"></span>
+    </div>`;
+  }
+
+  _renderDefaultLayout() {
+    this._el.innerHTML = `${this._symRowLayout}${this._enUSQwertyLayout}${this._bgBGPhoneticLayout}`;
   }
 }
 
@@ -395,6 +475,26 @@ class Key {
   };
 });
 
+class KeyboardKey extends Key {
+  constructor(keyboard, el, props = el.dataset) {
+    let classes = el.classList;
+
+    super(el, props);
+
+    this._keyboard = keyboard;
+
+    classes.add('poke43-key-keyboard');
+
+    this._renderHints();
+  }
+
+  _execute(ev, index, text, command) {
+    //super._execute(...arguments);
+
+    command && this._keyboard[command]();
+  }
+}
+
 class EditorKey extends Key {
   constructor(editor, el, props = el.dataset) {
     super(el, props);
@@ -468,6 +568,7 @@ window.poke43 = {
   Editor: Editor,
   EditorKeyboard: EditorKeyboard,
   Key: Key,
+  KeyboardKey: KeyboardKey,
   EditorKey: EditorKey,
   EditorCharKey: EditorCharKey,
   EditorCharKey1: EditorCharKey1,
