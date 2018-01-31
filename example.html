@@ -18,36 +18,10 @@
     </style>
 
     <script>
-function pageEnv() {
-  let snip = (str, n) => str.trimLeft().
-    replace(/\s+/gm, ' ').
-    substr(0, n) + ((n < str.length) ? '...' : '');
-
-  return [].slice.call(document.scripts).
-    map(script => script.src || 'code: ' + snip(script.textContent, 101)).
-    join('\n');
-}
-
 //Peek42.noop();
 
 document.addEventListener('DOMContentLoaded', function () {
-  let editor = new poke43.Editor(document.getElementById('editor')),
-    keyboard = new poke43.Keyboard(document.getElementById('keyboard'));
-
-  //p(pageEnv(), 'Environment');
-
-  ['eq', 'plus', 'amp', 'paren', 'quot', 'sc', 'num1', 'num2'].forEach(k => {
-    new poke43.EditorKeySym(document.getElementById(`key-${k}`), editor);
-  });
-  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].forEach(k => {
-    new poke43.EditorKeyChar(document.getElementById(`key-${k}`), editor);
-  });
-  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].forEach(k => {
-    new poke43.EditorKeyChar(document.getElementById(`key-${k}`), editor);
-  });
-  ['z', 'x', 'c', 'v', 'b', 'n', 'm'].forEach(k => {
-    new poke43.EditorKeyChar1(document.getElementById(`key-${k}`), editor);
-  });
+  let poke = new poke43.Poke(document.getElementById('poke'));
 });
     </script>
   </head>
@@ -55,91 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
   <body>
 <h1 id="about">Poke43 - example [<a href="./index.html">Index</a>]</h1>
 
-<div id="editor"></div>
-<div id="keyboard">
-  <div class="poke43-keyboard-row">
-    <span id="key-eq"
-      data-text="="
-      data-text2="/"
-      data-text4=">"
-      data-text6="<"
-      data-text8="\">=</span>
-    <span id="key-plus"
-      data-text="+"
-      data-text2="-"
-      data-text4="_"
-      data-text6="%"
-      data-text8="*">+</span>
-    <span id="key-amp"
-      data-text="&"
-      data-text2="|"
-      data-text4="$"
-      data-text6="^"
-      data-text8="~">&amp;</span>
-    <span id="key-paren"
-      data-text="()"
-      data-text2="#"
-      data-text4="{}"
-      data-text6="[]"
-      data-text8="@">()</span>
-    <span id="key-quot"
-      data-text='""' data-hint='"'
-      data-text2="?"
-      data-text4="``" data-hint4="`"
-      data-text6="''" data-hint6="'"
-      data-text8="!">""</span>
-    <span id="key-sc"
-      data-text=";"
-      data-text2=": " data-command2="moveForward" data-hint2=":"
-      data-text4="."
-      data-text6=", " data-command6="moveForward" data-hint6=","
-      data-text8="">;</span>
-    <span id="key-num1"
-      data-text="0"
-      data-text2="2"
-      data-text4="4"
-      data-text6="3"
-      data-text8="1">0</span>
-    <span id="key-num2"
-      data-text="5"
-      data-text2="7"
-      data-text4="9"
-      data-text6="8"
-      data-text8="6">5</span>
-  </div>
-  <div class="poke43-keyboard-row">
-    <span id="key-q" data-text="q">q</span>
-    <span id="key-w" data-text="w">w</span>
-    <span id="key-e" data-text="e">e</span>
-    <span id="key-r" data-text="r">r</span>
-    <span id="key-t" data-text="t">t</span>
-    <span id="key-y" data-text="y">y</span>
-    <span id="key-u" data-text="u">u</span>
-    <span id="key-i" data-text="i">i</span>
-    <span id="key-o" data-text="o">o</span>
-    <span id="key-p" data-text="p">p</span>
-  </div>
-  <div class="poke43-keyboard-row">
-    <span id="key-a" data-text="a">a</span>
-    <span id="key-s" data-text="s">s</span>
-    <span id="key-d" data-text="d">d</span>
-    <span id="key-f" data-text="f">f</span>
-    <span id="key-g" data-text="g">g</span>
-    <span id="key-h" data-text="h">h</span>
-    <span id="key-j" data-text="j">j</span>
-    <span id="key-k" data-text="k">k</span>
-    <span id="key-l" data-text="l">l</span>
-  </div>
-  <div class="poke43-keyboard-row">
-    <span id="key-z" data-text="z">z</span>
-    <span id="key-x" data-text="x">x</span>
-    <span id="key-c" data-text="c">c</span>
-    <span id="key-v" data-text="v">v</span>
-    <span id="key-b" data-text="b">b</span>
-    <span id="key-n" data-text="n">n</span>
-    <span id="key-m" data-text="m">m</span>
-  </div>
-</div>
+<div id="poke"></div>
 
 <ul>
   <li>tap - primary</li>
