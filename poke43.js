@@ -111,8 +111,22 @@ class Editor {
 
   insert(str) {
     this._content = `${this._content.slice(0, this._pos)}${str}${this._content.slice(this._pos)}`;
-    this._pos += 1;
+    this._pos += str.length;
     this._update();
+  }
+
+  expandAbbreviation() {
+    let [part1, part2] = this._parts,
+      match = part1.match(/(\S+)$/);
+
+    if (match) {
+      let expanded = emmet.expand(match[1], {profile: {indent: '  '}}),
+        part1noabbr = part1.slice(0, match.index);
+
+      this._content = `${part1noabbr}${expanded}${part2}`;
+      this._pos = part1noabbr.length + expanded.length;
+      this._update();
+    }
   }
 }
 
@@ -125,6 +139,9 @@ class EditorKeyboard {
     this._hammer = new Hammer(this._el);
     this._rowEls = this._getRowEls();
     this._keys = this._getKeys();
+    this._symRowActive = true;
+    this._currSymLayout = 'Poke43';
+    this._custRowActive = false;
     this._currLangLayout = 'enUSQwerty';
 
     classes.add('poke43-keyboard');
@@ -145,6 +162,59 @@ class EditorKeyboard {
       this._rowEls = this._getRowEls();
       this._keys = this._getKeys();
     }
+  }
+
+  expandAbbreviation() {
+    this._editor.expandAbbreviation();
+  }
+
+  toggleSymRow() {
+    if (this._symRowActive) {
+      this._rowEls[0].style.display = 'none';
+      this._rowEls[1].style.display = 'none';
+      this._symRowActive = false;
+    } else {
+      switch (this._currSymLayout) {
+      case 'Poke43':
+        this._rowEls[0].style.display = 'block';
+        this._rowEls[1].style.display = 'none';
+        break;
+      case 'Textastic':
+        this._rowEls[0].style.display = 'none';
+        this._rowEls[1].style.display = 'block';
+        break;
+      }
+      this._symRowActive = true;
+    }
+  }
+
+  cycleSymLayouts() {
+    if (!this._symRowActive) {
+      return;
+    }
+
+    switch (this._currSymLayout) {
+    case 'Poke43':
+      this._rowEls[0].style.display = 'none';
+      this._rowEls[1].style.display = 'block';
+      this._currSymLayout = 'Textastic';
+      break;
+    case 'Textastic':
+      this._rowEls[0].style.display = 'block';
+      this._rowEls[1].style.display = 'none';
+      this._currSymLayout = 'Poke43';
+      break;
+    }
+  }
+
+  toggleCustRow() {
+    /*if (this._custRowActive) {
+      this._rowEls[2].style.display = 'none';
+      this._custRowActive = false;
+    } else {
+      this._rowEls[2].style.display = 'block';
+      this._custRowActive = true;
+    }*/
   }
 
   cycleLangLayouts() {
@@ -180,17 +250,29 @@ class EditorKeyboard {
   get _symRowLayout() {
     return `<div class="poke43-keyboard-row">
 <span data-type="EditorSymKey"
+  data-text="0"
+  data-text2="2"
+  data-text4="4"
+  data-text6="3"
+  data-text8="1"></span>
+<span data-type="EditorSymKey"
+  data-text="5"
+  data-text2="7"
+  data-text4="9"
+  data-text6="8"
+  data-text8="6"></span>
+<span data-type="EditorSymKey"
+  data-text="+"
+  data-text2="*"
+  data-text4="%"
+  data-text6="_"
+  data-text8="-"></span>
+<span data-type="EditorSymKey"
   data-text="="
   data-text2="/"
   data-text4=">"
   data-text6="<"
   data-text8="\\"></span>
-<span data-type="EditorSymKey"
-  data-text="+"
-  data-text2="-"
-  data-text4="_"
-  data-text6="%"
-  data-text8="*"></span>
 <span data-type="EditorSymKey"
   data-text="&"
   data-text2="|"
@@ -198,23 +280,69 @@ class EditorKeyboard {
   data-text6="^"
   data-text8="~"></span>
 <span data-type="EditorSymKey"
-  data-text="()"
-  data-text2="#"
-  data-text4="{}"
-  data-text6="[]"
-  data-text8="@"></span>
+  data-text="()" data-command="moveBackward"
+  data-text2="@"
+  data-text4="{}" data-command4="moveBackward"
+  data-text6="[]" data-command6="moveBackward"
+  data-text8="#"></span>
 <span data-type="EditorSymKey"
-  data-text='""' data-hint='"'
+  data-text='""' data-command="moveBackward" data-hint='"'
   data-text2="?"
-  data-text4="\`\`" data-hint4="\`"
-  data-text6="''" data-hint6="'"
+  data-text4="\`\`" data-command4="moveBackward" data-hint4="\`"
+  data-text6="''" data-command6="moveBackward" data-hint6="'"
   data-text8="!"></span>
 <span data-type="EditorSymKey"
   data-text=";"
-  data-text2=": " data-command2="moveForward" data-hint2=":"
+  data-text2=":"
   data-text4="."
-  data-text6=", " data-command6="moveForward" data-hint6=","
-  data-text8="..." data-command8="moveForward2"></span>
+  data-text6=","></span>
+    </div>`;
+  }
+
+  get _symRowTextasticLayout() {
+    return `<div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorSymKey"
+  data-text='"'
+  data-text2=")"
+  data-text4="]"
+  data-text6="["
+  data-text8="("></span>
+<span data-type="EditorSymKey"
+  data-text="'"
+  data-text2="}"
+  data-text4=">"
+  data-text6="<"
+  data-text8="{"></span>
+<span data-type="EditorSymKey"
+  data-text="$"
+  data-text2="/"
+  data-text4="\`"
+  data-text6="´"
+  data-text8="\\"></span>
+<span data-type="EditorSymKey"
+  data-text="|"
+  data-text2="^"
+  data-text4="£"
+  data-text6="€"
+  data-text8="~"></span>
+<span data-type="EditorSymKey"
+  data-text="="
+  data-text2="+"
+  data-text4="*"
+  data-text6="%"
+  data-text8="-"></span>
+<span data-type="EditorSymKey"
+  data-text="#"
+  data-text2="?"
+  data-text4="&"
+  data-text6="@"
+  data-text8="!"></span>
+<span data-type="EditorSymKey"
+  data-text=";"
+  data-text2=":"
+  data-text4="."
+  data-text6=","
+  data-text8="_"></span>
 <span data-type="EditorSymKey"
   data-text="0"
   data-text2="2"
@@ -230,8 +358,19 @@ class EditorKeyboard {
     </div>`;
   }
 
+  get _custRowLayout() {
+    return `<div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorCustKey"></span>
+<span data-type="EditorCustKey"></span>
+<span data-type="EditorCustKey"></span>
+<span data-type="EditorCustKey"></span>
+<span data-type="EditorCustKey"></span>
+<span data-type="EditorCustKey"></span>
+    </div>`;
+  }
+
   get _enUSQwertyIndices() {
-    return [1, 2, 3];
+    return [3, 4, 5];
   }
 
   get _enUSQwertyLayout() {
@@ -260,8 +399,10 @@ class EditorKeyboard {
     </div>
     <div class="poke43-keyboard-row">
 <span data-type="KeyboardKey"
-  data-text="\u{1f310}"
-  data-command="cycleLangLayouts"></span>
+  data-command="cycleLangLayouts" data-hint="\u{1f310}"
+  data-command1="toggleSymRow"
+  data-command3="cycleSymLayouts"
+  data-command5="toggleCustRow"></span>
 <span data-type="EditorCharKey1" data-text="z"></span>
 <span data-type="EditorCharKey1" data-text="x"></span>
 <span data-type="EditorCharKey1" data-text="c"></span>
@@ -269,12 +410,14 @@ class EditorKeyboard {
 <span data-type="EditorCharKey1" data-text="b"></span>
 <span data-type="EditorCharKey1" data-text="n"></span>
 <span data-type="EditorCharKey1" data-text="m"></span>
-<span class="poke43-key-dummy" data-type="KeyboardKey"></span>
+<span data-type="KeyboardKey"
+  data-hint="\u2728"
+  data-command3="expandAbbreviation"></span>
     </div>`;
   }
 
   get _bgBGPhoneticIndices() {
-    return [4, 5, 6];
+    return [6, 7, 8];
   }
 
   get _bgBGPhoneticLayout() {
@@ -306,8 +449,10 @@ class EditorKeyboard {
     </div>
     <div class="poke43-keyboard-row" style="display: none;">
 <span data-type="KeyboardKey"
-  data-text="\u{1f310}"
-  data-command="cycleLangLayouts"></span>
+  data-command="cycleLangLayouts" data-hint="\u{1f310}"
+  data-command1="toggleSymRow"
+  data-command3="cycleSymLayouts"
+  data-command5="toggleCustRow"></span>
 <span data-type="EditorCharKey1" data-text="з"></span>
 <span data-type="EditorCharKey1" data-text="ь"></span>
 <span data-type="EditorCharKey1" data-text="ц"></span>
@@ -316,12 +461,14 @@ class EditorKeyboard {
 <span data-type="EditorCharKey1" data-text="н"></span>
 <span data-type="EditorCharKey1" data-text="м"></span>
 <span data-type="EditorCharKey1" data-text="ч"></span>
-<span class="poke43-key-dummy" data-type="KeyboardKey"></span>
+<span data-type="KeyboardKey"
+  data-hint="\u2728"
+  data-command3="expandAbbreviation"></span>
     </div>`;
   }
 
   _renderDefaultLayout() {
-    this._el.innerHTML = `${this._symRowLayout}${this._enUSQwertyLayout}${this._bgBGPhoneticLayout}`;
+    this._el.innerHTML = `${this._symRowLayout}${this._symRowTextasticLayout}${this._custRowLayout}${this._enUSQwertyLayout}${this._bgBGPhoneticLayout}`;
   }
 }
 
@@ -442,6 +589,26 @@ class Key {
     </table>`;
   }
 
+  _renderHints8() {
+    this._el.innerHTML = `<table>
+<tr>
+  <td class="poke43-key-hint8">${this._hint(8)}</td>
+  <td class="poke43-key-hint1">${this._hint(1)}</td>
+  <td class="poke43-key-hint2">${this._hint(2)}</td>
+</tr>
+<tr>
+  <td class="poke43-key-hint7">${this._hint(7)}</td>
+  <td class="poke43-key-hint0">${this._hint(0)}</td>
+  <td class="poke43-key-hint3">${this._hint(3)}</td>
+</tr>
+<tr>
+  <td class="poke43-key-hint6">${this._hint(6)}</td>
+  <td class="poke43-key-hint5">${this._hint(5)}</td>
+  <td class="poke43-key-hint4">${this._hint(4)}</td>
+</tr>
+    </table>`;
+  }
+
   _flash(ev, index, text, command) {
     let classes = this._el.classList;
 
@@ -500,6 +667,9 @@ class EditorKey extends Key {
     super(el, props);
 
     this._editor = editor;
+
+    // TODO: Avoid double render in subclasses?
+    this._renderHints();
   }
 
   _execute(ev, index, text, command) {
@@ -562,6 +732,21 @@ class EditorSymKey extends EditorKey {
   }
 }
 
+class EditorCustKey extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
+    let classes = el.classList;
+
+    super(editor, el, props);
+
+    this._dispatchSwipe = this._dispatchSwipe8;
+    this._renderHints = this._renderHints8;
+
+    classes.add('poke43-key-cust');
+
+    this._renderHints();
+  }
+}
+
 // exports
 window.poke43 = {
   Poke: Poke,
@@ -572,7 +757,8 @@ window.poke43 = {
   EditorKey: EditorKey,
   EditorCharKey: EditorCharKey,
   EditorCharKey1: EditorCharKey1,
-  EditorSymKey: EditorSymKey
+  EditorSymKey: EditorSymKey,
+  EditorCustKey: EditorCustKey
 };
 
 })();
