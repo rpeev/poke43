@@ -120,11 +120,19 @@ class Editor {
       match = part1.match(/(\S+)$/);
 
     if (match) {
-      let expanded = emmet.expand(match[1], {profile: {indent: '  '}}),
+      let expanded = emmet.expand(match[1], {
+          field: emmetFieldParser.createToken,
+          profile: {
+            indent: '  '
+          }
+        }),
+        {string, fields} = emmetFieldParser.parse(expanded),
         part1noabbr = part1.slice(0, match.index);
 
-      this._content = `${part1noabbr}${expanded}${part2}`;
-      this._pos = part1noabbr.length + expanded.length;
+      this._content = `${part1noabbr}${string}${part2}`;
+      this._pos = part1noabbr.length + ((fields.length > 0) ?
+        fields[0].location :
+        string.length);
       this._update();
     }
   }

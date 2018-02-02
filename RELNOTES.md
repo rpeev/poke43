@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.5.0
+
+* Add partial support for handling emmet tabstops (position caret to the first tabstop if present)
+
 ## 1.4.0
 
 * Add the ability to toggle symbol row and switch layouts
