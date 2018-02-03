@@ -22,6 +22,10 @@ class Poke {
 
     this._editor = new poke43.Editor(this._elEditor);
     this._keyboard = new poke43.EditorKeyboard(this._editor, this._elKeyboard);
+
+    this._editor._hammer.on('tap', ev => {
+      this._keyboard.show();
+    });
   }
 }
 
@@ -30,6 +34,7 @@ class Editor {
     let classes = el.classList;
 
     this._el = el;
+    this._hammer = new Hammer(this._el);
     this._content = this._el.textContent;
     this._pos = this._content.length;
     this._part1 = document.createElement('span');
@@ -65,11 +70,20 @@ class Editor {
     this._part2.textContent = part2;
   }
 
+  showCaret() {
+    this._caret.style.visibility = 'visible';
+  }
+
+  hideCaret() {
+    this._caret.style.visibility = 'hidden';
+  }
+
   noop() {}
 
   moveBackward() {
     if (this._pos === 0) {
-      throw new RangeError('Cannot move before start');
+      //throw new RangeError('Cannot move before start');
+      return;
     }
 
     this._pos -= 1;
@@ -78,7 +92,8 @@ class Editor {
 
   moveForward() {
     if (this._pos === this._content.length) {
-      throw new RangeError('Cannot move past end');
+      //throw new RangeError('Cannot move past end');
+      return;
     }
 
     this._pos += 1;
@@ -90,9 +105,64 @@ class Editor {
     this.moveForward();
   }
 
+  moveBackwardLeap() {
+    if (this._pos === 0) {
+      //throw new RangeError('Cannot move before start');
+      return;
+    }
+
+    let [part1, part2] = this._parts,
+      match = part1.match(/(\w+)$/);
+
+    if (match) {
+      this._pos -= match[1].length;
+      this._update();
+    } else {
+      let match = part1.match(/(\W+)$/);
+
+      if (match) {
+        this._pos -= match[1].length;
+        this._update();
+      }
+    }
+  }
+
+  moveForwardLeap() {
+    if (this._pos === this._content.length) {
+      //throw new RangeError('Cannot move past end');
+      return;
+    }
+
+    let [part1, part2] = this._parts,
+      match = part2.match(/^(\w+)/);
+
+    if (match) {
+      this._pos += match[1].length;
+      this._update();
+    } else {
+      let match = part2.match(/^(\W+)/);
+
+      if (match) {
+        this._pos += match[1].length;
+        this._update();
+      }
+    }
+  }
+
+  moveStart() {
+    this._pos = 0;
+    this._update();
+  }
+
+  moveEnd() {
+    this._pos = this._content.length;
+    this._update();
+  }
+
   deleteBackward() {
     if (this._pos === 0) {
-      throw new RangeError('Cannot delete before start');
+      //throw new RangeError('Cannot delete before start');
+      return;
     }
 
     this._content = `${this._content.slice(0, this._pos - 1)}${this._content.slice(this._pos)}`;
@@ -102,11 +172,58 @@ class Editor {
 
   deleteForward() {
     if (this._pos === this._content.length) {
-      throw new RangeError('Cannot delete past end');
+      //throw new RangeError('Cannot delete past end');
+      return;
     }
 
     this._content = `${this._content.slice(0, this._pos)}${this._content.slice(this._pos + 1)}`;
     this._update();
+  }
+
+  deleteBackwardLeap() {
+    if (this._pos === 0) {
+      //throw new RangeError('Cannot delete before start');
+      return;
+    }
+
+    let [part1, part2] = this._parts,
+      match = part1.match(/(\w+)$/);
+
+    if (match) {
+      this._content = `${part1.slice(0, match.index)}${part2}`;
+      this._pos -= match[1].length;
+      this._update();
+    } else {
+      let match = part1.match(/(\W+)$/);
+
+      if (match) {
+        this._content = `${part1.slice(0, match.index)}${part2}`;
+        this._pos -= match[1].length;
+        this._update();
+      }
+    }
+  }
+
+  deleteForwardLeap() {
+    if (this._pos === this._content.length) {
+      //throw new RangeError('Cannot delete past end');
+      return;
+    }
+
+    let [part1, part2] = this._parts,
+      match = part2.match(/^(\w+)/);
+
+    if (match) {
+      this._content = `${part1}${part2.slice(match[1].length)}`;
+      this._update();
+    } else {
+      let match = part2.match(/(^\W+)/);
+
+      if (match) {
+        this._content = `${part1}${part2.slice(match[1].length)}`;
+        this._update();
+      }
+    }
   }
 
   insert(str) {
@@ -117,9 +234,11 @@ class Editor {
 
   expandAbbreviation() {
     let [part1, part2] = this._parts,
+      // TODO: Better selection of expansion candidate?
       match = part1.match(/(\S+)$/);
 
     if (match) {
+      // TODO: Deal with expand exceptions? (correct expansion candidate and retry?)
       let expanded = emmet.expand(match[1], {
           field: emmetFieldParser.createToken,
           profile: {
@@ -135,6 +254,10 @@ class Editor {
         string.length);
       this._update();
     }
+  }
+
+  evalJS() {
+    eval(this._content);
   }
 }
 
@@ -174,6 +297,22 @@ class EditorKeyboard {
 
   expandAbbreviation() {
     this._editor.expandAbbreviation();
+  }
+
+  evalJS() {
+    this._editor.evalJS();
+  }
+
+  show() {
+    if (this._el.style.display === 'none') {
+      this._el.style.display = 'flex';
+      this._editor.showCaret();
+    }
+  }
+
+  hide() {
+    this._el.style.display = 'none';
+    this._editor.hideCaret();
   }
 
   toggleSymRow() {
@@ -283,10 +422,10 @@ class EditorKeyboard {
   data-text8="\\"></span>
 <span data-type="EditorSymKey"
   data-text="&"
-  data-text2="|"
+  data-text2="^"
   data-text4="$"
-  data-text6="^"
-  data-text8="~"></span>
+  data-text6="~"
+  data-text8="|"></span>
 <span data-type="EditorSymKey"
   data-text="()" data-command="moveBackward"
   data-text2="@"
@@ -299,11 +438,13 @@ class EditorKeyboard {
   data-text4="\`\`" data-command4="moveBackward" data-hint4="\`"
   data-text6="''" data-command6="moveBackward" data-hint6="'"
   data-text8="!"></span>
-<span data-type="EditorSymKey"
+<span class="poke43-key-important" data-type="EditorSymKey1"
   data-text=";"
   data-text2=":"
+  data-command3="moveEnd"
   data-text4="."
-  data-text6=","></span>
+  data-text6=","
+  data-command7="moveStart"></span>
     </div>`;
   }
 
@@ -345,11 +486,13 @@ class EditorKeyboard {
   data-text4="&"
   data-text6="@"
   data-text8="!"></span>
-<span data-type="EditorSymKey"
+<span class="poke43-key-important" data-type="EditorSymKey1"
   data-text=";"
   data-text2=":"
+  data-command3="moveEnd"
   data-text4="."
   data-text6=","
+  data-command7="moveStart"
   data-text8="_"></span>
 <span data-type="EditorSymKey"
   data-text="0"
@@ -392,7 +535,10 @@ class EditorKeyboard {
 <span data-type="EditorCharKey" data-text="u"></span>
 <span data-type="EditorCharKey" data-text="i"></span>
 <span data-type="EditorCharKey" data-text="o"></span>
-<span data-type="EditorCharKey" data-text="p"></span>
+<span class="poke43-key-important" data-type="EditorCharKey"
+  data-text="p"
+  data-command3="moveForwardLeap"
+  data-command7="moveBackwardLeap"></span>
     </div>
     <div class="poke43-keyboard-row">
 <span data-type="EditorCharKey" data-text="a"></span>
@@ -403,7 +549,10 @@ class EditorKeyboard {
 <span data-type="EditorCharKey" data-text="h"></span>
 <span data-type="EditorCharKey" data-text="j"></span>
 <span data-type="EditorCharKey" data-text="k"></span>
-<span data-type="EditorCharKey" data-text="l"></span>
+<span class="poke43-key-important" data-type="EditorCharKey"
+  data-text="l"
+  data-command3="moveForwardLeap"
+  data-command7="moveBackwardLeap"></span>
     </div>
     <div class="poke43-keyboard-row">
 <span data-type="KeyboardKey"
@@ -417,10 +566,15 @@ class EditorKeyboard {
 <span data-type="EditorCharKey1" data-text="v"></span>
 <span data-type="EditorCharKey1" data-text="b"></span>
 <span data-type="EditorCharKey1" data-text="n"></span>
-<span data-type="EditorCharKey1" data-text="m"></span>
+<span class="poke43-key-important" data-type="EditorCharKey1"
+  data-text="m"
+  data-command3="deleteForwardLeap"
+  data-command7="deleteBackwardLeap"></span>
 <span data-type="KeyboardKey"
   data-hint="\u2728"
-  data-command3="expandAbbreviation"></span>
+  data-command1="hide"
+  data-command3="expandAbbreviation"
+  data-command5="evalJS"></span>
     </div>`;
   }
 
@@ -440,7 +594,10 @@ class EditorKeyboard {
 <span data-type="EditorCharKey" data-text="и"></span>
 <span data-type="EditorCharKey" data-text="о"></span>
 <span data-type="EditorCharKey" data-text="п"></span>
-<span data-type="EditorCharKey" data-text="ю"></span>
+<span class="poke43-key-important" data-type="EditorCharKey"
+  data-text="ю"
+  data-command3="moveForwardLeap"
+  data-command7="moveBackwardLeap"></span>
     </div>
     <div class="poke43-keyboard-row" style="display: none;">
 <span data-type="EditorCharKey" data-text="а"></span>
@@ -453,7 +610,10 @@ class EditorKeyboard {
 <span data-type="EditorCharKey" data-text="к"></span>
 <span data-type="EditorCharKey" data-text="л"></span>
 <span data-type="EditorCharKey" data-text="ш"></span>
-<span data-type="EditorCharKey" data-text="щ"></span>
+<span class="poke43-key-important" data-type="EditorCharKey"
+  data-text="щ"
+  data-command3="moveForwardLeap"
+  data-command7="moveBackwardLeap"></span>
     </div>
     <div class="poke43-keyboard-row" style="display: none;">
 <span data-type="KeyboardKey"
@@ -468,10 +628,14 @@ class EditorKeyboard {
 <span data-type="EditorCharKey1" data-text="б"></span>
 <span data-type="EditorCharKey1" data-text="н"></span>
 <span data-type="EditorCharKey1" data-text="м"></span>
-<span data-type="EditorCharKey1" data-text="ч"></span>
+<span class="poke43-key-important" data-type="EditorCharKey1"
+  data-text="ч"
+  data-command3="deleteForwardLeap"
+  data-command7="deleteBackwardLeap"></span>
 <span data-type="KeyboardKey"
   data-hint="\u2728"
-  data-command3="expandAbbreviation"></span>
+  data-command3="expandAbbreviation"
+  data-command5="evalJS"></span>
     </div>`;
   }
 
@@ -740,6 +904,21 @@ class EditorSymKey extends EditorKey {
   }
 }
 
+class EditorSymKey1 extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
+    let classes = el.classList;
+
+    super(editor, el, props);
+
+    this._dispatchSwipe = this._dispatchSwipe8;
+    this._renderHints = this._renderHints4diag;
+
+    classes.add('poke43-key-sym');
+
+    this._renderHints();
+  }
+}
+
 class EditorCustKey extends EditorKey {
   constructor(editor, el, props = el.dataset) {
     let classes = el.classList;
@@ -766,6 +945,7 @@ window.poke43 = {
   EditorCharKey: EditorCharKey,
   EditorCharKey1: EditorCharKey1,
   EditorSymKey: EditorSymKey,
+  EditorSymKey1: EditorSymKey1,
   EditorCustKey: EditorCustKey
 };
 
