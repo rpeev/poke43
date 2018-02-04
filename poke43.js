@@ -233,23 +233,21 @@ class Editor {
   }
 
   expandAbbreviation() {
-    let [part1, part2] = this._parts,
-      // TODO: Better selection of expansion candidate?
-      match = part1.match(/(\S+)$/);
+    let abbr = emmetExtractAbbreviation.extractAbbreviation(this._content, this._pos, true);
 
-    if (match) {
-      // TODO: Deal with expand exceptions? (correct expansion candidate and retry?)
-      let expanded = emmet.expand(match[1], {
+    if (abbr) {
+      let part1 = this._content.slice(0, abbr.location),
+        part2 = this._content.slice(abbr.location + abbr.abbreviation.length),
+        expanded = emmet.expand(abbr.abbreviation, {
           field: emmetFieldParser.createToken,
           profile: {
             indent: '  '
           }
         }),
-        {string, fields} = emmetFieldParser.parse(expanded),
-        part1noabbr = part1.slice(0, match.index);
+        {string, fields} = emmetFieldParser.parse(expanded);
 
-      this._content = `${part1noabbr}${string}${part2}`;
-      this._pos = part1noabbr.length + ((fields.length > 0) ?
+      this._content = `${part1}${string}${part2}`;
+      this._pos = part1.length + ((fields.length > 0) ?
         fields[0].location :
         string.length);
       this._update();
