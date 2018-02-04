@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.7.0
+
+* Improve emmet abbreviation detection by using emmet extract-abbreviation instead of dumb regexp
+
 ## 1.6.0
 
 * Add the ability to execute JS
