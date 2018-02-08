@@ -55,6 +55,14 @@ class Editor {
     ];
   }
 
+  _currIndent(text) {
+    let posPrevNL = text.lastIndexOf('\n'),
+      currLine = text.slice(posPrevNL + 1),
+      match = currLine.match(/^(\s+)/);
+
+    return (match) ? match[1] : '';
+  }
+
   _update() {
     let [part1, part2] = this._parts;
 
@@ -213,9 +221,39 @@ class Editor {
     }
   }
 
-  insert(str) {
-    this._content = `${this._content.slice(0, this._pos)}${str}${this._content.slice(this._pos)}`;
-    this._pos += str.length;
+  insert(text) {
+    let [part1, part2] = this._parts,
+      prevChar = part1[part1.length - 1],
+      nextChar = part2[0],
+      incrPos = text.length;
+
+    switch (text) {
+    case '(': text += ')'; break;
+    case '[': text += ']'; break;
+    case '{': text += '}'; break;
+    case '\'': text += '\''; break;
+    case '"': text += '"'; break;
+    case '`': text += '`'; break;
+    case '\n': {
+      let indent = this._currIndent(part1);
+
+      if (
+        (prevChar === '(' && nextChar === ')') ||
+        (prevChar === '[' && nextChar === ']') ||
+        (prevChar === '{' && nextChar === '}')
+      ) {
+        text += `${indent}  \n${indent}`;
+        incrPos += indent.length + 2;
+      } else {
+        text += indent;
+        incrPos += indent.length;
+      }
+
+      break;
+    }}
+
+    this._content = `${part1}${text}${part2}`;
+    this._pos += incrPos;
     this._update();
   }
 
