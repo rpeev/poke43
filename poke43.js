@@ -8,20 +8,16 @@
 
 class Poke {
   constructor(el) {
-    let classes = el.classList;
-
     this._el = el;
     this._elEditor = document.createElement('div');
+    this._editor = new poke43.Editor(this._elEditor);
     this._elKeyboard = document.createElement('div');
+    this._keyboard = new poke43.EditorKeyboard(this._editor, this._elKeyboard);
 
-    classes.add('poke43-poke');
-
+    this._el.classList.add('poke43-poke');
     this._el.textContent = '';
     this._el.appendChild(this._elEditor);
     this._el.appendChild(this._elKeyboard);
-
-    this._editor = new poke43.Editor(this._elEditor);
-    this._keyboard = new poke43.EditorKeyboard(this._editor, this._elKeyboard);
 
     this._editor._hammer.on('tap', ev => {
       this._keyboard.show();
@@ -31,26 +27,22 @@ class Poke {
 
 class Editor {
   constructor(el) {
-    let classes = el.classList;
-
     this._el = el;
-    this._hammer = new Hammer(this._el);
     this._content = this._el.textContent;
     this._pos = this._content.length;
     this._part1 = document.createElement('span');
     this._caret = document.createElement('span');
     this._part2 = document.createElement('span');
+    this._hammer = new Hammer(this._el);
 
-    classes.add('poke43-editor');
-
+    this._el.classList.add('poke43-editor');
+    this._el.textContent = '';
     this._part1.classList.add('poke43-line-part1');
+    this._el.appendChild(this._part1);
     this._caret.classList.add('poke43-line-caret');
     this._caret.classList.add('poke43-blink-smooth');
-    this._part2.classList.add('poke43-line-part2');
-
-    this._el.textContent = '';
-    this._el.appendChild(this._part1);
     this._el.appendChild(this._caret);
+    this._part2.classList.add('poke43-line-part2');
     this._el.appendChild(this._part2);
 
     this._update();
@@ -70,19 +62,8 @@ class Editor {
     this._part2.textContent = part2;
   }
 
-  showCaret() {
-    this._caret.style.visibility = 'visible';
-  }
-
-  hideCaret() {
-    this._caret.style.visibility = 'hidden';
-  }
-
-  noop() {}
-
   moveBackward() {
     if (this._pos === 0) {
-      //throw new RangeError('Cannot move before start');
       return;
     }
 
@@ -92,7 +73,6 @@ class Editor {
 
   moveForward() {
     if (this._pos === this._content.length) {
-      //throw new RangeError('Cannot move past end');
       return;
     }
 
@@ -100,14 +80,8 @@ class Editor {
     this._update();
   }
 
-  moveForward2() {
-    this.moveForward();
-    this.moveForward();
-  }
-
-  moveBackwardLeap() {
+  moveBackwardWB() {
     if (this._pos === 0) {
-      //throw new RangeError('Cannot move before start');
       return;
     }
 
@@ -127,9 +101,8 @@ class Editor {
     }
   }
 
-  moveForwardLeap() {
+  moveForwardWB() {
     if (this._pos === this._content.length) {
-      //throw new RangeError('Cannot move past end');
       return;
     }
 
@@ -149,19 +122,36 @@ class Editor {
     }
   }
 
-  moveStart() {
+  moveBackwardSOL() {
+    let [part1, part2] = this._parts,
+      posPrevNL = part1.lastIndexOf('\n');
+
+    this._pos = posPrevNL + 1;
+    this._update();
+  }
+
+  moveForwardEOL() {
+    let [part1, part2] = this._parts,
+      posNextNL = part2.indexOf('\n');
+
+    this._pos = (posNextNL != -1) ?
+      part1.length + posNextNL :
+      this._content.length;
+    this._update();
+  }
+
+  moveBackwardSOB() {
     this._pos = 0;
     this._update();
   }
 
-  moveEnd() {
+  moveForwardEOB() {
     this._pos = this._content.length;
     this._update();
   }
 
   deleteBackward() {
     if (this._pos === 0) {
-      //throw new RangeError('Cannot delete before start');
       return;
     }
 
@@ -172,7 +162,6 @@ class Editor {
 
   deleteForward() {
     if (this._pos === this._content.length) {
-      //throw new RangeError('Cannot delete past end');
       return;
     }
 
@@ -180,9 +169,8 @@ class Editor {
     this._update();
   }
 
-  deleteBackwardLeap() {
+  deleteBackwardWB() {
     if (this._pos === 0) {
-      //throw new RangeError('Cannot delete before start');
       return;
     }
 
@@ -204,9 +192,8 @@ class Editor {
     }
   }
 
-  deleteForwardLeap() {
+  deleteForwardWB() {
     if (this._pos === this._content.length) {
-      //throw new RangeError('Cannot delete past end');
       return;
     }
 
@@ -241,39 +228,52 @@ class Editor {
         expanded = emmet.expand(abbr.abbreviation, {
           field: emmetFieldParser.createToken,
           profile: {
-            indent: '  '
+            indent: '  ',
+            selfClosingStyle: 'xhtml'
           }
         }),
         {string, fields} = emmetFieldParser.parse(expanded);
 
       this._content = `${part1}${string}${part2}`;
-      this._pos = part1.length + ((fields.length > 0) ?
-        fields[0].location :
-        string.length);
+      this._pos = part1.length + ((fields.length > 0) ? fields[0].location : string.length);
       this._update();
     }
   }
 
   evalJS() {
-    eval(this._content);
+    let res = eval(this._content),
+      snip = (s, n) => {
+        let s1 = s.replace(/\s+/g, ' ');
+
+        return (s1.length > n) ? `${s1.slice(0, n)}...` : s1;
+      };
+
+    if (window.Peek42 && ['boolean', 'number', 'string'].includes(typeof res)) {
+      p(res, snip(this._content, 101));
+    }
   }
 }
 
 class EditorKeyboard {
   constructor(editor, el) {
-    let classes = el.classList;
-
     this._editor = editor;
     this._el = el;
-    this._hammer = new Hammer(this._el);
     this._rowEls = this._getRowEls();
     this._keys = this._getKeys();
-    this._symRowActive = true;
-    this._currSymLayout = 'Poke43';
-    this._custRowActive = false;
-    this._currLangLayout = 'enUSQwerty';
+    this._symBlockActive = true;
+    this._symBlockLayout = 'Poke43';
+    this._custBlockActive = false;
+    this._langBlockLayout = 'EnUsQwerty';
+    this._hammer = new Hammer(this._el);
 
-    classes.add('poke43-keyboard');
+    this._el.classList.add('poke43-keyboard');
+
+    if (this._rowEls.length === 0) {
+      this._renderDefaultLayout();
+
+      this._rowEls = this._getRowEls();
+      this._keys = this._getKeys();
+    }
 
     this._hammer.
       get('swipe').
@@ -285,96 +285,9 @@ class EditorKeyboard {
       }).
       on('swipe', ev => {});
 
-    if (this._rowEls.length === 0) {
-      this._renderDefaultLayout();
-
-      this._rowEls = this._getRowEls();
-      this._keys = this._getKeys();
-    }
-  }
-
-  expandAbbreviation() {
-    this._editor.expandAbbreviation();
-  }
-
-  evalJS() {
-    this._editor.evalJS();
-  }
-
-  show() {
-    if (this._el.style.display === 'none') {
-      this._el.style.display = 'flex';
-      this._editor.showCaret();
-    }
-  }
-
-  hide() {
-    this._el.style.display = 'none';
-    this._editor.hideCaret();
-  }
-
-  toggleSymRow() {
-    if (this._symRowActive) {
-      this._rowEls[0].style.display = 'none';
-      this._rowEls[1].style.display = 'none';
-      this._symRowActive = false;
-    } else {
-      switch (this._currSymLayout) {
-      case 'Poke43':
-        this._rowEls[0].style.display = 'block';
-        this._rowEls[1].style.display = 'none';
-        break;
-      case 'Textastic':
-        this._rowEls[0].style.display = 'none';
-        this._rowEls[1].style.display = 'block';
-        break;
-      }
-      this._symRowActive = true;
-    }
-  }
-
-  cycleSymLayouts() {
-    if (!this._symRowActive) {
-      return;
-    }
-
-    switch (this._currSymLayout) {
-    case 'Poke43':
-      this._rowEls[0].style.display = 'none';
-      this._rowEls[1].style.display = 'block';
-      this._currSymLayout = 'Textastic';
-      break;
-    case 'Textastic':
-      this._rowEls[0].style.display = 'block';
-      this._rowEls[1].style.display = 'none';
-      this._currSymLayout = 'Poke43';
-      break;
-    }
-  }
-
-  toggleCustRow() {
-    /*if (this._custRowActive) {
-      this._rowEls[2].style.display = 'none';
-      this._custRowActive = false;
-    } else {
-      this._rowEls[2].style.display = 'block';
-      this._custRowActive = true;
-    }*/
-  }
-
-  cycleLangLayouts() {
-    switch (this._currLangLayout) {
-    case 'enUSQwerty':
-      this._enUSQwertyIndices.forEach(i => this._rowEls[i].style.display = 'none');
-      this._bgBGPhoneticIndices.forEach(i => this._rowEls[i].style.display = 'block');
-      this._currLangLayout = 'bgBGPhonetic';
-      break;
-    case 'bgBGPhonetic':
-      this._enUSQwertyIndices.forEach(i => this._rowEls[i].style.display = 'block');
-      this._bgBGPhoneticIndices.forEach(i => this._rowEls[i].style.display = 'none');
-      this._currLangLayout = 'enUSQwerty';
-      break;
-    }
+    this._symBlockActive && this[`_symBlock${this._symBlockLayout}Show`]();
+    this._custBlockActive && this._custBlockShow();
+    this[`_langBlock${this._langBlockLayout}Show`]();
   }
 
   _getRowEls() {
@@ -392,182 +305,199 @@ class EditorKeyboard {
     );
   }
 
-  get _symRowLayout() {
-    return `<div class="poke43-keyboard-row">
-<span data-type="EditorSymKey"
+  _hideRowEls(indices) {
+    indices.forEach(i => this._rowEls[i].style.display = 'none');
+  }
+
+  _showRowEls(indices) {
+    indices.forEach(i => this._rowEls[i].style.display = 'block');
+  }
+
+  get _symBlockPoke43Indices() { return [0]; }
+  _symBlockPoke43Hide() { this._hideRowEls(this._symBlockPoke43Indices); }
+  _symBlockPoke43Show() { this._showRowEls(this._symBlockPoke43Indices); }
+  get _symBlockPoke43Layout() {
+    return `<div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorKeySymbol"
   data-text="0"
   data-text2="2"
   data-text4="4"
   data-text6="3"
   data-text8="1"></span>
-<span data-type="EditorSymKey"
+<span data-type="EditorKeySymbol"
   data-text="5"
   data-text2="7"
   data-text4="9"
   data-text6="8"
   data-text8="6"></span>
-<span data-type="EditorSymKey"
+<span data-type="EditorKeySymbol"
   data-text="+"
   data-text2="*"
   data-text4="%"
   data-text6="_"
   data-text8="-"></span>
-<span data-type="EditorSymKey"
+<span data-type="EditorKeySymbol"
   data-text="="
   data-text2="/"
   data-text4=">"
   data-text6="<"
   data-text8="\\"></span>
-<span data-type="EditorSymKey"
+<span data-type="EditorKeySymbol"
   data-text="&"
-  data-text2="^"
-  data-text4="$"
-  data-text6="~"
-  data-text8="|"></span>
-<span data-type="EditorSymKey"
-  data-text="()" data-command="moveBackward"
-  data-text2="@"
-  data-text4="{}" data-command4="moveBackward"
-  data-text6="[]" data-command6="moveBackward"
-  data-text8="#"></span>
-<span data-type="EditorSymKey"
-  data-text='""' data-command="moveBackward" data-hint='"'
+  data-text2="|"
+  data-text4=")"
+  data-text6="("
+  data-text8="~"></span>
+<span data-type="EditorKeySymbol"
+  data-text="#"
+  data-text2="$"
+  data-text4="]"
+  data-text6="["
+  data-text8="^"></span>
+<span data-type="EditorKeySymbol"
+  data-text="@"
+  data-text2="'"
+  data-text4="}"
+  data-text6="{"
+  data-text8="\`"></span>
+<span data-type="EditorKeySymbol"
+  data-text='"'
   data-text2="?"
-  data-text4="\`\`" data-command4="moveBackward" data-hint4="\`"
-  data-text6="''" data-command6="moveBackward" data-hint6="'"
-  data-text8="!"></span>
-<span class="poke43-key-important" data-type="EditorSymKey1"
-  data-text=";"
-  data-text2=":"
-  data-command3="moveEnd"
   data-text4="."
   data-text6=","
-  data-command7="moveStart"></span>
+  data-text8="!"></span>
+<span data-type="EditorKeySymbol"
+  data-text=";"
+  data-text2=":"></span>
     </div>`;
   }
 
-  get _symRowTextasticLayout() {
+  get _symBlockTextasticIndices() { return [1]; }
+  _symBlockTextasticHide() { this._hideRowEls(this._symBlockTextasticIndices); }
+  _symBlockTextasticShow() { this._showRowEls(this._symBlockTextasticIndices); }
+  get _symBlockTextasticLayout() {
     return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorSymKey"
-  data-text='"'
-  data-text2=")"
-  data-text4="]"
-  data-text6="["
-  data-text8="("></span>
-<span data-type="EditorSymKey"
-  data-text="'"
-  data-text2="}"
-  data-text4=">"
-  data-text6="<"
-  data-text8="{"></span>
-<span data-type="EditorSymKey"
-  data-text="$"
-  data-text2="/"
-  data-text4="\`"
-  data-text6="´"
-  data-text8="\\"></span>
-<span data-type="EditorSymKey"
-  data-text="|"
-  data-text2="^"
-  data-text4="£"
-  data-text6="€"
-  data-text8="~"></span>
-<span data-type="EditorSymKey"
-  data-text="="
-  data-text2="+"
-  data-text4="*"
-  data-text6="%"
-  data-text8="-"></span>
-<span data-type="EditorSymKey"
-  data-text="#"
-  data-text2="?"
-  data-text4="&"
-  data-text6="@"
-  data-text8="!"></span>
-<span class="poke43-key-important" data-type="EditorSymKey1"
-  data-text=";"
-  data-text2=":"
-  data-command3="moveEnd"
-  data-text4="."
-  data-text6=","
-  data-command7="moveStart"
-  data-text8="_"></span>
-<span data-type="EditorSymKey"
+<span data-type="EditorKeySymbol"
   data-text="0"
   data-text2="2"
   data-text4="4"
   data-text6="3"
   data-text8="1"></span>
-<span data-type="EditorSymKey"
+<span data-type="EditorKeySymbol"
   data-text="5"
   data-text2="7"
   data-text4="9"
   data-text6="8"
   data-text8="6"></span>
+<span data-type="EditorKeySymbol"
+  data-text='"'
+  data-text2=")"
+  data-text4="]"
+  data-text6="["
+  data-text8="("></span>
+<span data-type="EditorKeySymbol"
+  data-text="'"
+  data-text2="}"
+  data-text4=">"
+  data-text6="<"
+  data-text8="{"></span>
+<span data-type="EditorKeySymbol"
+  data-text="$"
+  data-text2="/"
+  data-text4="\`"
+  data-text6="´"
+  data-text8="\\"></span>
+<span data-type="EditorKeySymbol"
+  data-text="|"
+  data-text2="^"
+  data-text4="£"
+  data-text6="€"
+  data-text8="~"></span>
+<span data-type="EditorKeySymbol"
+  data-text="="
+  data-text2="+"
+  data-text4="*"
+  data-text6="%"
+  data-text8="-"></span>
+<span data-type="EditorKeySymbol"
+  data-text="#"
+  data-text2="?"
+  data-text4="&"
+  data-text6="@"
+  data-text8="!"></span>
+<span data-type="EditorKeySymbol"
+  data-text=";"
+  data-text2=":"
+  data-text4="."
+  data-text6=","
+  data-text8="_"></span>
     </div>`;
   }
 
-  get _custRowLayout() {
+  get _custBlockIndices() { return [2]; }
+  _custBlockHide() { this._hideRowEls(this._custBlockIndices); }
+  _custBlockShow() { this._showRowEls(this._custBlockIndices); }
+  get _custBlockLayout() {
     return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorCustKey"></span>
-<span data-type="EditorCustKey"></span>
-<span data-type="EditorCustKey"></span>
-<span data-type="EditorCustKey"></span>
-<span data-type="EditorCustKey"></span>
-<span data-type="EditorCustKey"></span>
+<span data-type="EditorKeyCustom"></span>
+<span data-type="EditorKeyCustom"></span>
+<span data-type="EditorKeyCustom"></span>
+<span data-type="EditorKeyCustom"></span>
+<span data-type="EditorKeyCustom"></span>
+<span data-type="EditorKeyCustom"></span>
     </div>`;
   }
 
-  get _enUSQwertyIndices() {
-    return [3, 4, 5];
+  get _langBlockEnUsQwertyIndices() { return [3, 4, 5]; }
+  _langBlockEnUsQwertyHide() {
+    this._hideRowEls(this._langBlockEnUsQwertyIndices);
+    this._hideRowEls(this._langBlockEnUsQwertySymIndices);
   }
-
-  get _enUSQwertyLayout() {
-    return `<div class="poke43-keyboard-row">
-<span data-type="EditorCharKey" data-text="q"></span>
-<span data-type="EditorCharKey" data-text="w"></span>
-<span data-type="EditorCharKey" data-text="e"></span>
-<span data-type="EditorCharKey" data-text="r"></span>
-<span data-type="EditorCharKey" data-text="t"></span>
-<span data-type="EditorCharKey" data-text="y"></span>
-<span data-type="EditorCharKey" data-text="u"></span>
-<span data-type="EditorCharKey" data-text="i"></span>
-<span data-type="EditorCharKey" data-text="o"></span>
-<span class="poke43-key-important" data-type="EditorCharKey"
-  data-text="p"
-  data-command3="moveForwardLeap"
-  data-command7="moveBackwardLeap"></span>
+  _langBlockEnUsQwertyShow() {
+    this._showRowEls((this._symBlockActive) ?
+      this._langBlockEnUsQwertyIndices :
+      this._langBlockEnUsQwertySymIndices);
+  }
+  get _langBlockEnUsQwertyLayout() {
+    return `<div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorKeyCharacterSpaceMove" data-text="q"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="w"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="e"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="r"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="t"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="y"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="u"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="i"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="o"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="p"></span>
     </div>
-    <div class="poke43-keyboard-row">
-<span data-type="EditorCharKey" data-text="a"></span>
-<span data-type="EditorCharKey" data-text="s"></span>
-<span data-type="EditorCharKey" data-text="d"></span>
-<span data-type="EditorCharKey" data-text="f"></span>
-<span data-type="EditorCharKey" data-text="g"></span>
-<span data-type="EditorCharKey" data-text="h"></span>
-<span data-type="EditorCharKey" data-text="j"></span>
-<span data-type="EditorCharKey" data-text="k"></span>
-<span class="poke43-key-important" data-type="EditorCharKey"
-  data-text="l"
-  data-command3="moveForwardLeap"
-  data-command7="moveBackwardLeap"></span>
+    <div class="poke43-keyboard-row" style="display: none;">
+<span class="poke43-key-move1" data-type="EditorKeyCharacterSpaceMove"
+  data-text="a"
+  data-command3="moveForwardEOL"
+  data-command7="moveBackwardSOL"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="s"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="d"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="f"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="g"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="h"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="j"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="k"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="l"></span>
     </div>
-    <div class="poke43-keyboard-row">
+    <div class="poke43-keyboard-row" style="display: none;">
 <span data-type="KeyboardKey"
-  data-command="cycleLangLayouts" data-hint="\u{1f310}"
-  data-command1="toggleSymRow"
-  data-command3="cycleSymLayouts"
-  data-command5="toggleCustRow"></span>
-<span data-type="EditorCharKey1" data-text="z"></span>
-<span data-type="EditorCharKey1" data-text="x"></span>
-<span data-type="EditorCharKey1" data-text="c"></span>
-<span data-type="EditorCharKey1" data-text="v"></span>
-<span data-type="EditorCharKey1" data-text="b"></span>
-<span data-type="EditorCharKey1" data-text="n"></span>
-<span class="poke43-key-important" data-type="EditorCharKey1"
-  data-text="m"
-  data-command3="deleteForwardLeap"
-  data-command7="deleteBackwardLeap"></span>
+  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
+  data-command1="toggleSymBlock"
+  data-command3="cycleSymBlockLayouts"
+  data-command5="toggleCustBlock"></span>
+<span data-type="EditorKeyCharacterSpaceMoveWB" data-text="z"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="x"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="c"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="v"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="b"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="n"></span>
+<span data-type="EditorKeyCharacterEnterDeleteWB" data-text="m"></span>
 <span data-type="KeyboardKey"
   data-hint="\u2728"
   data-command1="hide"
@@ -576,76 +506,332 @@ class EditorKeyboard {
     </div>`;
   }
 
-  get _bgBGPhoneticIndices() {
-    return [6, 7, 8];
-  }
-
-  get _bgBGPhoneticLayout() {
+  get _langBlockEnUsQwertySymIndices() { return [6, 7, 8]; }
+  _langBlockEnUsQwertySymHide() { this._hideRowEls(this._langBlockEnUsQwertySymIndices); }
+  _langBlockEnUsQwertySymShow() { this._showRowEls(this._langBlockEnUsQwertySymIndices); }
+  get _langBlockEnUsQwertySymLayout() {
     return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorCharKey" data-text="я"></span>
-<span data-type="EditorCharKey" data-text="в"></span>
-<span data-type="EditorCharKey" data-text="е"></span>
-<span data-type="EditorCharKey" data-text="р"></span>
-<span data-type="EditorCharKey" data-text="т"></span>
-<span data-type="EditorCharKey" data-text="ъ"></span>
-<span data-type="EditorCharKey" data-text="у"></span>
-<span data-type="EditorCharKey" data-text="и"></span>
-<span data-type="EditorCharKey" data-text="о"></span>
-<span data-type="EditorCharKey" data-text="п"></span>
-<span class="poke43-key-important" data-type="EditorCharKey"
-  data-text="ю"
-  data-command3="moveForwardLeap"
-  data-command7="moveBackwardLeap"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="q" data-text2="!" data-text4="1"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="w" data-text2="@" data-text4="2"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="e" data-text2="#" data-text4="3"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="r" data-text2="$" data-text4="4"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="t" data-text2="%" data-text4="5"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="y" data-text2="^" data-text4="6"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="u" data-text2="&" data-text4="7"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="i" data-text2="*" data-text4="8"></span>
+<span data-type="EditorKeyCharSymEnterDelete"
+  data-text="o" data-text2="(" data-text4="9"></span>
+<span data-type="EditorKeyCharSymEnterDelete"
+  data-text="p" data-text2=")" data-text4="0"></span>
     </div>
     <div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorCharKey" data-text="а"></span>
-<span data-type="EditorCharKey" data-text="с"></span>
-<span data-type="EditorCharKey" data-text="д"></span>
-<span data-type="EditorCharKey" data-text="ф"></span>
-<span data-type="EditorCharKey" data-text="г"></span>
-<span data-type="EditorCharKey" data-text="х"></span>
-<span data-type="EditorCharKey" data-text="й"></span>
-<span data-type="EditorCharKey" data-text="к"></span>
-<span data-type="EditorCharKey" data-text="л"></span>
-<span data-type="EditorCharKey" data-text="ш"></span>
-<span class="poke43-key-important" data-type="EditorCharKey"
-  data-text="щ"
-  data-command3="moveForwardLeap"
-  data-command7="moveBackwardLeap"></span>
+<span class="poke43-key-move1" data-type="EditorKeyCharSymSpaceMove"
+  data-text="a"
+  data-command3="moveForwardEOL"
+  data-command7="moveBackwardSOL"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="s" data-text2="_" data-text4="-"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="d" data-text2="+" data-text4="="></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="f" data-text2="{" data-text4="["></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="g" data-text2="}" data-text4="]"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="h" data-text2=":" data-text4=";"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="j" data-text2='"' data-text4="'"></span>
+<span data-type="EditorKeyCharSymEnterDelete"
+  data-text="k" data-text2="|" data-text4="\\"></span>
+<span data-type="EditorKeyCharSymEnterDelete" data-text="l"></span>
     </div>
     <div class="poke43-keyboard-row" style="display: none;">
 <span data-type="KeyboardKey"
-  data-command="cycleLangLayouts" data-hint="\u{1f310}"
-  data-command1="toggleSymRow"
-  data-command3="cycleSymLayouts"
-  data-command5="toggleCustRow"></span>
-<span data-type="EditorCharKey1" data-text="з"></span>
-<span data-type="EditorCharKey1" data-text="ь"></span>
-<span data-type="EditorCharKey1" data-text="ц"></span>
-<span data-type="EditorCharKey1" data-text="ж"></span>
-<span data-type="EditorCharKey1" data-text="б"></span>
-<span data-type="EditorCharKey1" data-text="н"></span>
-<span data-type="EditorCharKey1" data-text="м"></span>
-<span class="poke43-key-important" data-type="EditorCharKey1"
-  data-text="ч"
-  data-command3="deleteForwardLeap"
-  data-command7="deleteBackwardLeap"></span>
+  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
+  data-command1="toggleSymBlock"
+  data-command3="cycleSymBlockLayouts"
+  data-command5="toggleCustBlock"></span>
+<span data-type="EditorKeyCharSymSpaceMoveWB" data-text="z"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="x" data-text2="~" data-text4="\`"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="c" data-text2="<" data-text4=","></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="v" data-text2=">" data-text4="."></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="b" data-text2="?" data-text4="/"></span>
+<span data-type="EditorKeyCharSymSpaceMove" data-text="n"></span>
+<span data-type="EditorKeyCharSymEnterDeleteWB" data-text="m"></span>
 <span data-type="KeyboardKey"
   data-hint="\u2728"
+  data-command1="hide"
+  data-command3="expandAbbreviation"
+  data-command5="evalJS"></span>
+    </div>`;
+  }
+
+  get _langBlockBgBgPhoneticIndices() { return [9, 10, 11]; }
+  _langBlockBgBgPhoneticHide() {
+    this._hideRowEls(this._langBlockBgBgPhoneticIndices);
+    this._hideRowEls(this._langBlockBgBgPhoneticSymIndices);
+  }
+  _langBlockBgBgPhoneticShow() {
+    this._showRowEls((this._symBlockActive) ?
+      this._langBlockBgBgPhoneticIndices :
+      this._langBlockBgBgPhoneticSymIndices);
+  }
+  get _langBlockBgBgPhoneticLayout() {
+    return `<div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorKeyCharacterSpaceMove" data-text="я"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="в"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="е"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="р"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="т"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="ъ"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="у"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="и"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="о"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="п"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="ю"></span>
+    </div>
+    <div class="poke43-keyboard-row" style="display: none;">
+<span class="poke43-key-move1" data-type="EditorKeyCharacterSpaceMove"
+  data-text="а"
+  data-command3="moveForwardEOL"
+  data-command7="moveBackwardSOL"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="с"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="д"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="ф"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="г"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="х"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="й"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="к"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="л"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="ш"></span>
+<span data-type="EditorKeyCharacterEnterDelete" data-text="щ"></span>
+    </div>
+    <div class="poke43-keyboard-row" style="display: none;">
+<span data-type="KeyboardKey"
+  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
+  data-command1="toggleSymBlock"
+  data-command3="cycleSymBlockLayouts"
+  data-command5="toggleCustBlock"></span>
+<span data-type="EditorKeyCharacterSpaceMoveWB" data-text="з"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="ь"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="ц"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="ж"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="б"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="н" data-text2="\u2116"></span>
+<span data-type="EditorKeyCharacterSpaceMove" data-text="м"></span>
+<span data-type="EditorKeyCharacterEnterDeleteWB" data-text="ч"></span>
+<span data-type="KeyboardKey"
+  data-hint="\u2728"
+  data-command1="hide"
+  data-command3="expandAbbreviation"
+  data-command5="evalJS"></span>
+    </div>`;
+  }
+
+  get _langBlockBgBgPhoneticSymIndices() { return [12, 13, 14]; }
+  _langBlockBgBgPhoneticSymHide() { this._hideRowEls(this._langBlockBgBgPhoneticSymIndices); }
+  _langBlockBgBgPhoneticSymShow() { this._showRowEls(this._langBlockBgBgPhoneticSymIndices); }
+  get _langBlockBgBgPhoneticSymLayout() {
+    return `<div class="poke43-keyboard-row" style="display: none;">
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="я" data-text2="!" data-text4="1"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="в" data-text2="@" data-text4="2"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="е" data-text2="#" data-text4="3"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="р" data-text2="$" data-text4="4"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="т" data-text2="%" data-text4="5"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="ъ" data-text2="^" data-text4="6"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="у" data-text2="&" data-text4="7"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="и" data-text2="*" data-text4="8"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="о" data-text2="(" data-text4="9"></span>
+<span data-type="EditorKeyCharSymEnterDelete"
+  data-text="п" data-text2=")" data-text4="0"></span>
+<span data-type="EditorKeyCharSymEnterDelete" data-text="ю"></span>
+    </div>
+    <div class="poke43-keyboard-row" style="display: none;">
+<span class="poke43-key-move1" data-type="EditorKeyCharSymSpaceMove"
+  data-text="а"
+  data-command3="moveForwardEOL"
+  data-command7="moveBackwardSOL"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="с" data-text2="_" data-text4="-"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="д" data-text2="+" data-text4="="></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="ф" data-text2="{" data-text4="["></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="г" data-text2="}" data-text4="]"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="х" data-text2=":" data-text4=";"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="й" data-text2='"' data-text4="'"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="к" data-text2="|" data-text4="\\"></span>
+<span data-type="EditorKeyCharSymSpaceMove" data-text="л"></span>
+<span data-type="EditorKeyCharSymEnterDelete" data-text="ш"></span>
+<span data-type="EditorKeyCharSymEnterDelete" data-text="щ"></span>
+    </div>
+    <div class="poke43-keyboard-row" style="display: none;">
+<span data-type="KeyboardKey"
+  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
+  data-command1="toggleSymBlock"
+  data-command3="cycleSymBlockLayouts"
+  data-command5="toggleCustBlock"></span>
+<span data-type="EditorKeyCharSymSpaceMoveWB" data-text="з"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="ь" data-text2="~" data-text4="\`"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="ц" data-text2="<" data-text4=","></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="ж" data-text2=">" data-text4="."></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="б" data-text2="?" data-text4="/"></span>
+<span data-type="EditorKeyCharSymSpaceMove"
+  data-text="н" data-text2="\u2116"></span>
+<span data-type="EditorKeyCharSymSpaceMove" data-text="м"></span>
+<span data-type="EditorKeyCharSymEnterDeleteWB" data-text="ч"></span>
+<span data-type="KeyboardKey"
+  data-hint="\u2728"
+  data-command1="hide"
   data-command3="expandAbbreviation"
   data-command5="evalJS"></span>
     </div>`;
   }
 
   _renderDefaultLayout() {
-    this._el.innerHTML = `${this._symRowLayout}${this._symRowTextasticLayout}${this._custRowLayout}${this._enUSQwertyLayout}${this._bgBGPhoneticLayout}`;
+    this._el.innerHTML = `
+${this._symBlockPoke43Layout}
+${this._symBlockTextasticLayout}
+${this._custBlockLayout}
+${this._langBlockEnUsQwertyLayout}
+${this._langBlockEnUsQwertySymLayout}
+${this._langBlockBgBgPhoneticLayout}
+${this._langBlockBgBgPhoneticSymLayout}
+    `;
+  }
+
+  toggleSymBlock() {
+    if (this._symBlockActive) {
+      this._symBlockPoke43Hide();
+      this._symBlockTextasticHide();
+
+      this._symBlockActive = false;
+    } else {
+      switch (this._symBlockLayout) {
+      case 'Poke43':
+        this._symBlockTextasticHide();
+        this._symBlockPoke43Show();
+
+        break;
+      case 'Textastic':
+        this._symBlockPoke43Hide();
+        this._symBlockTextasticShow();
+
+        break;
+      }
+
+      this._symBlockActive = true;
+    }
+
+    this[`_langBlock${this._langBlockLayout}Hide`]();
+    this[`_langBlock${this._langBlockLayout}Show`]();
+  }
+
+  cycleSymBlockLayouts() {
+    if (!this._symBlockActive) {
+      return;
+    }
+
+    switch (this._symBlockLayout) {
+    case 'Poke43':
+      this._symBlockPoke43Hide();
+      this._symBlockTextasticShow();
+
+      this._symBlockLayout = 'Textastic';
+
+      break;
+    case 'Textastic':
+      this._symBlockTextasticHide();
+      this._symBlockPoke43Show();
+
+      this._symBlockLayout = 'Poke43';
+
+      break;
+    }
+  }
+
+  toggleCustBlock() {
+    /*if (this._custBlockActive) {
+      this._custBlockHide();
+
+      this._custBlockActive = false;
+    } else {
+      this._custBlockShow();
+
+      this._custBlockActive = true;
+    }*/
+  }
+
+  cycleLangBlockLayouts() {
+    switch (this._langBlockLayout) {
+    case 'EnUsQwerty':
+      this._langBlockEnUsQwertyHide();
+      this._langBlockBgBgPhoneticShow();
+
+      this._langBlockLayout = 'BgBgPhonetic';
+
+      break;
+    case 'BgBgPhonetic':
+      this._langBlockBgBgPhoneticHide();
+      this._langBlockEnUsQwertyShow();
+
+      this._langBlockLayout = 'EnUsQwerty';
+
+      break;
+    }
+  }
+
+  hide() {
+    this._el.style.display = 'none';
+    this._editor._caret.style.visibility = 'hidden';
+  }
+
+  show() {
+    this._el.style.display = '';
+    this._editor._caret.style.visibility = 'visible';
+  }
+
+  expandAbbreviation() {
+    this._editor.expandAbbreviation();
+  }
+
+  evalJS() {
+    this._editor.evalJS();
   }
 }
 
 class Key {
   constructor(el, props = el.dataset) {
-    let classes = el.classList;
-
     this._el = el;
     this[`_text${0}`] = props.text;
     this[`_command${0}`] = props.command;
@@ -655,12 +841,12 @@ class Key {
       this[`_command${i}`] = props[`command${i}`];
       this[`_hint${i}`] = props[`hint${i}`];
     }
+    this._dispatchSwipe = this[props.dispatchSwipe || '_dispatchSwipe4cross'];
+    this._renderHints = this[props.renderHints || '_renderHints4cross'];
+    this._flashDuration = Number(props.flashDuration || 100);
     this._hammer = new Hammer(this._el);
-    this._dispatchSwipe = this._dispatchSwipe4cross;
-    this._renderHints = this._renderHints4cross;
-    this._flashDuration = 100;
 
-    classes.add('poke43-key');
+    this._el.classList.add('poke43-key');
 
     this._hammer.
       get('swipe').
@@ -782,9 +968,11 @@ class Key {
   _flash(ev, index, text, command) {
     let classes = this._el.classList;
 
+    !text && !command && classes.add('poke43-key-flash-no-action');
     classes.add('poke43-key-flash');
     classes.add(`poke43-key-flash${index}`);
     setTimeout(() => {
+      classes.remove('poke43-key-flash-no-action');
       classes.remove('poke43-key-flash');
       classes.remove(`poke43-key-flash${index}`);
     }, this._flashDuration);
@@ -814,20 +1002,16 @@ class Key {
 
 class KeyboardKey extends Key {
   constructor(keyboard, el, props = el.dataset) {
-    let classes = el.classList;
-
     super(el, props);
 
     this._keyboard = keyboard;
 
-    classes.add('poke43-key-keyboard');
+    this._el.classList.add('poke43-key-keyboard');
 
     this._renderHints();
   }
 
   _execute(ev, index, text, command) {
-    //super._execute(...arguments);
-
     command && this._keyboard[command]();
   }
 }
@@ -838,95 +1022,230 @@ class EditorKey extends Key {
 
     this._editor = editor;
 
-    // TODO: Avoid double render in subclasses?
+    this._el.classList.add('poke43-key-editor');
+
     this._renderHints();
   }
 
   _execute(ev, index, text, command) {
-    //super._execute(...arguments);
-
     text && this._editor.insert(text);
     command && this._editor[command]();
   }
 }
 
-class EditorCharKey extends EditorKey {
+class EditorKeyCharacter extends EditorKey {
   constructor(editor, el, props = el.dataset) {
-    let classes = el.classList;
+    super(editor, el, props);
 
+    this._text1 = this._text1 || this._text0.toUpperCase();
+
+    this._el.classList.add('poke43-key-character');
+
+    this._renderHints();
+  }
+}
+
+class EditorKeyCharacterSpaceMove extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
     super(editor, el, props);
 
     this._text1 = this._text1 || this._text0.toUpperCase();
     this._command3 = this._command3 || 'moveForward';
     this._text5 = this._text5 || ' ';
-    this._hint5 = this._hint5 || '\u2423';
+    //this._hint5 = this._hint5 || '\u2423';
     this._command7 = this._command7 || 'moveBackward';
 
-    classes.add('poke43-key-char');
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-move');
 
     this._renderHints();
   }
 }
 
-class EditorCharKey1 extends EditorKey {
+class EditorKeyCharacterSpaceMoveWB extends EditorKey {
   constructor(editor, el, props = el.dataset) {
-    let classes = el.classList;
+    super(editor, el, props);
 
+    this._text1 = this._text1 || this._text0.toUpperCase();
+    this._command3 = this._command3 || 'moveForwardWB';
+    this._text5 = this._text5 || ' ';
+    //this._hint5 = this._hint5 || '\u2423';
+    this._command7 = this._command7 || 'moveBackwardWB';
+
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-move');
+    this._el.classList.add('poke43-key-important');
+
+    this._renderHints();
+  }
+}
+
+class EditorKeyCharacterEnterDelete extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
     super(editor, el, props);
 
     this._text1 = this._text1 || this._text0.toUpperCase();
     this._command3 = this._command3 || 'deleteForward';
     this._text5 = this._text5 || '\n';
-    this._hint5 = this._hint5 || '\u21b2';
+    //this._hint5 = this._hint5 || '\u21b2';
     this._command7 = this._command7 || 'deleteBackward';
 
-    classes.add('poke43-key-char');
-    classes.add('poke43-key-danger');
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-delete');
 
     this._renderHints();
   }
 }
 
-class EditorSymKey extends EditorKey {
+class EditorKeyCharacterEnterDeleteWB extends EditorKey {
   constructor(editor, el, props = el.dataset) {
-    let classes = el.classList;
-
     super(editor, el, props);
 
-    this._dispatchSwipe = this._dispatchSwipe4diag;
-    this._renderHints = this._renderHints4diag;
+    this._text1 = this._text1 || this._text0.toUpperCase();
+    this._command3 = this._command3 || 'deleteForwardWB';
+    this._text5 = this._text5 || '\n';
+    //this._hint5 = this._hint5 || '\u21b2';
+    this._command7 = this._command7 || 'deleteBackwardWB';
 
-    classes.add('poke43-key-sym');
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-delete');
+    this._el.classList.add('poke43-key-important');
 
     this._renderHints();
   }
 }
 
-class EditorSymKey1 extends EditorKey {
+class EditorKeyCharSymSpaceMove extends EditorKey {
   constructor(editor, el, props = el.dataset) {
-    let classes = el.classList;
-
     super(editor, el, props);
 
-    this._dispatchSwipe = this._dispatchSwipe8;
-    this._renderHints = this._renderHints4diag;
+    this._text1 = this._text1 || this._text0.toUpperCase();
+    this._text8 = this._text8 || this._text1;
+    this._command3 = this._command3 || 'moveForward';
+    this._text5 = this._text5 || ' ';
+    this._text6 = this._text6 || ' ';
+    this._command7 = this._command7 || 'moveBackward';
 
-    classes.add('poke43-key-sym');
+    if (!props.dispatchSwipe) {
+      this._dispatchSwipe = this._dispatchSwipe8;
+    }
+    if (!props.renderHints) {
+      this._renderHints = this._renderHints4diag;
+    }
+
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-move');
 
     this._renderHints();
   }
 }
 
-class EditorCustKey extends EditorKey {
+class EditorKeyCharSymSpaceMoveWB extends EditorKey {
   constructor(editor, el, props = el.dataset) {
-    let classes = el.classList;
-
     super(editor, el, props);
 
-    this._dispatchSwipe = this._dispatchSwipe8;
-    this._renderHints = this._renderHints8;
+    this._text1 = this._text1 || this._text0.toUpperCase();
+    this._text8 = this._text8 || this._text1;
+    this._command3 = this._command3 || 'moveForwardWB';
+    this._text5 = this._text5 || ' ';
+    this._text6 = this._text6 || ' ';
+    this._command7 = this._command7 || 'moveBackwardWB';
 
-    classes.add('poke43-key-cust');
+    if (!props.dispatchSwipe) {
+      this._dispatchSwipe = this._dispatchSwipe8;
+    }
+    if (!props.renderHints) {
+      this._renderHints = this._renderHints4diag;
+    }
+
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-move');
+    this._el.classList.add('poke43-key-important');
+
+    this._renderHints();
+  }
+}
+
+class EditorKeyCharSymEnterDelete extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
+    super(editor, el, props);
+
+    this._text1 = this._text1 || this._text0.toUpperCase();
+    this._text8 = this._text8 || this._text1;
+    this._command3 = this._command3 || 'deleteForward';
+    this._text5 = this._text5 || '\n';
+    this._text6 = this._text6 || '\n';
+    this._command7 = this._command7 || 'deleteBackward';
+
+    if (!props.dispatchSwipe) {
+      this._dispatchSwipe = this._dispatchSwipe8;
+    }
+    if (!props.renderHints) {
+      this._renderHints = this._renderHints4diag;
+    }
+
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-delete');
+
+    this._renderHints();
+  }
+}
+
+class EditorKeyCharSymEnterDeleteWB extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
+    super(editor, el, props);
+
+    this._text1 = this._text1 || this._text0.toUpperCase();
+    this._text8 = this._text8 || this._text1;
+    this._command3 = this._command3 || 'deleteForwardWB';
+    this._text5 = this._text5 || '\n';
+    this._text6 = this._text6 || '\n';
+    this._command7 = this._command7 || 'deleteBackwardWB';
+
+    if (!props.dispatchSwipe) {
+      this._dispatchSwipe = this._dispatchSwipe8;
+    }
+    if (!props.renderHints) {
+      this._renderHints = this._renderHints4diag;
+    }
+
+    this._el.classList.add('poke43-key-character');
+    this._el.classList.add('poke43-key-delete');
+    this._el.classList.add('poke43-key-important');
+
+    this._renderHints();
+  }
+}
+
+class EditorKeySymbol extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
+    super(editor, el, props);
+    
+    if (!props.dispatchSwipe) {
+      this._dispatchSwipe = this._dispatchSwipe4diag;
+    }
+    if (!props.renderHints) {
+      this._renderHints = this._renderHints4diag;
+    }
+
+    this._el.classList.add('poke43-key-symbol');
+
+    this._renderHints();
+  }
+}
+
+class EditorKeyCustom extends EditorKey {
+  constructor(editor, el, props = el.dataset) {
+    super(editor, el, props);
+
+    if (!props.dispatchSwipe) {
+      this._dispatchSwipe = this._dispatchSwipe8;
+    }
+    if (!props.renderHints) {
+      this._renderHints = this._renderHints8;
+    }
+
+    this._el.classList.add('poke43-key-custom');
 
     this._renderHints();
   }
@@ -940,11 +1259,17 @@ window.poke43 = {
   Key: Key,
   KeyboardKey: KeyboardKey,
   EditorKey: EditorKey,
-  EditorCharKey: EditorCharKey,
-  EditorCharKey1: EditorCharKey1,
-  EditorSymKey: EditorSymKey,
-  EditorSymKey1: EditorSymKey1,
-  EditorCustKey: EditorCustKey
+  EditorKeyCharacter: EditorKeyCharacter,
+  EditorKeyCharacterSpaceMove: EditorKeyCharacterSpaceMove,
+  EditorKeyCharacterSpaceMoveWB: EditorKeyCharacterSpaceMoveWB,
+  EditorKeyCharacterEnterDelete: EditorKeyCharacterEnterDelete,
+  EditorKeyCharacterEnterDeleteWB: EditorKeyCharacterEnterDeleteWB,
+  EditorKeyCharSymSpaceMove: EditorKeyCharSymSpaceMove,
+  EditorKeyCharSymSpaceMoveWB: EditorKeyCharSymSpaceMoveWB,
+  EditorKeyCharSymEnterDelete: EditorKeyCharSymEnterDelete,
+  EditorKeyCharSymEnterDeleteWB: EditorKeyCharSymEnterDeleteWB,
+  EditorKeySymbol: EditorKeySymbol,
+  EditorKeyCustom: EditorKeyCustom
 };
 
 })();
