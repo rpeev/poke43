@@ -1,5 +1,12 @@
 # Release Notes
 
+## 1.8.0
+
+* Tweak space/enter move/delete areas placement
+* Show symbols on language block keys when symbol block is hidden
+* Tweak symbol keys layout
+* Flash distinctly no op key commands
+
 ## 1.7.0
 
 * Improve emmet abbreviation detection by using emmet extract-abbreviation instead of dumb regexp
