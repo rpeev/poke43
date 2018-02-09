@@ -13,7 +13,8 @@
   border: 1px solid gray;
   border-radius: 0.5ex;
   white-space: pre;
-  font-size: 1.4em;
+  font-family: Menlo, monospace;
+  font-size: 1.3em;
 }
 
 .poke43-line-part1 {

@@ -55,12 +55,82 @@ class Editor {
     ];
   }
 
-  _currIndent(text) {
-    let posPrevNL = text.lastIndexOf('\n'),
-      currLine = text.slice(posPrevNL + 1),
-      match = currLine.match(/^(\s+)/);
+  _currLinePart1(part1) {
+    return part1.slice(part1.lastIndexOf('\n') + 1);
+  }
+
+  _currLinePart1IsIndentOnly(part1) {
+    return this._currLinePart1(part1).match(/^\s*$/);
+  }
+
+  _currLinePart1Indent(part1) {
+    let match = this._currLinePart1(part1).match(/^(\s+)/);
 
     return (match) ? match[1] : '';
+  }
+
+  _smartMoveBackward(part1, part2, editData) {
+    let currLinePart1 = this._currLinePart1(part1);
+
+    if (currLinePart1.length > 1 && this._currLinePart1IsIndentOnly(part1)) {
+      editData.posDelta += 1;
+    }
+  }
+
+  _smartLParen(part1, part2, editData) {
+    editData.text += ')';
+  }
+
+  _smartLBracket(part1, part2, editData) {
+    editData.text += ']';
+  }
+
+  _smartLBrace(part1, part2, editData) {
+    editData.text += '}';
+  }
+
+  _smartApostrophe(part1, part2, editData) {
+    editData.text += '\'';
+  }
+
+  _smartQuote(part1, part2, editData) {
+    editData.text += '"';
+  }
+
+  _smartBacktick(part1, part2, editData) {
+    editData.text += '`';
+  }
+
+  _smartSpace(part1, part2, editData) {
+    if (this._currLinePart1IsIndentOnly(part1)) {
+      editData.text += ' ';
+      editData.posDelta += 1;
+    }
+  }
+
+  _smartNewline(part1, part2, editData) {
+    let prevChar = part1[part1.length - 1],
+      nextChar = part2[0],
+      indent = this._currLinePart1Indent(part1);
+
+    if (
+      (prevChar === '(' && nextChar === ')') ||
+      (prevChar === '[' && nextChar === ']') ||
+      (prevChar === '{' && nextChar === '}')
+    ) {
+      editData.text += `${indent}  \n${indent}`;
+      editData.posDelta += indent.length + 2;
+    } else if(
+      (prevChar === '(' && nextChar !== ')') ||
+      (prevChar === '[' && nextChar !== ']') ||
+      (prevChar === '{' && nextChar !== '}')
+    ) {
+      editData.text += `${indent}  `;
+      editData.posDelta += indent.length + 2;
+    } else {
+      editData.text += indent;
+      editData.posDelta += indent.length;
+    }
   }
 
   _update() {
@@ -75,7 +145,14 @@ class Editor {
       return;
     }
 
-    this._pos -= 1;
+    let [part1, part2] = this._parts,
+      editData = {
+        posDelta: 1
+      };
+
+    this._smartMoveBackward(part1, part2, editData);
+
+    this._pos -= editData.posDelta;
     this._update();
   }
 
@@ -163,8 +240,15 @@ class Editor {
       return;
     }
 
-    this._content = `${this._content.slice(0, this._pos - 1)}${this._content.slice(this._pos)}`;
-    this._pos -= 1;
+    let [part1, part2] = this._parts,
+      editData = {
+        posDelta: 1
+      };
+
+    this._smartMoveBackward(part1, part2, editData);
+
+    this._pos -= editData.posDelta;
+    this._content = `${this._content.slice(0, this._pos)}${part2}`;
     this._update();
   }
 
@@ -223,37 +307,24 @@ class Editor {
 
   insert(text) {
     let [part1, part2] = this._parts,
-      prevChar = part1[part1.length - 1],
-      nextChar = part2[0],
-      incrPos = text.length;
+      editData = {
+        text: text,
+        posDelta: text.length
+      };
 
     switch (text) {
-    case '(': text += ')'; break;
-    case '[': text += ']'; break;
-    case '{': text += '}'; break;
-    case '\'': text += '\''; break;
-    case '"': text += '"'; break;
-    case '`': text += '`'; break;
-    case '\n': {
-      let indent = this._currIndent(part1);
+    case '(': this._smartLParen(part1, part2, editData); break;
+    case '[': this._smartLBracket(part1, part2, editData); break;
+    case '{': this._smartLBrace(part1, part2, editData); break;
+    case '\'': this._smartApostrophe(part1, part2, editData); break;
+    case '"': this._smartQuote(part1, part2, editData); break;
+    case '`': this._smartBacktick(part1, part2, editData); break;
+    case ' ': this._smartSpace(part1, part2, editData); break;
+    case '\n': this._smartNewline(part1, part2, editData); break;
+    }
 
-      if (
-        (prevChar === '(' && nextChar === ')') ||
-        (prevChar === '[' && nextChar === ']') ||
-        (prevChar === '{' && nextChar === '}')
-      ) {
-        text += `${indent}  \n${indent}`;
-        incrPos += indent.length + 2;
-      } else {
-        text += indent;
-        incrPos += indent.length;
-      }
-
-      break;
-    }}
-
-    this._content = `${part1}${text}${part2}`;
-    this._pos += incrPos;
+    this._content = `${part1}${editData.text}${part2}`;
+    this._pos += editData.posDelta;
     this._update();
   }
 
@@ -263,6 +334,7 @@ class Editor {
     if (abbr) {
       let part1 = this._content.slice(0, abbr.location),
         part2 = this._content.slice(abbr.location + abbr.abbreviation.length),
+        indent = this._currLinePart1Indent(part1),
         expanded = emmet.expand(abbr.abbreviation, {
           field: emmetFieldParser.createToken,
           profile: {
@@ -270,7 +342,11 @@ class Editor {
             selfClosingStyle: 'xhtml'
           }
         }),
-        {string, fields} = emmetFieldParser.parse(expanded);
+        expanded1 = expanded.
+          split('\n').
+          map((line, i) => (i === 0) ? line : `${indent}${line}`).
+          join('\n'),
+        {string, fields} = emmetFieldParser.parse(expanded1);
 
       this._content = `${part1}${string}${part2}`;
       this._pos = part1.length + ((fields.length > 0) ? fields[0].location : string.length);
