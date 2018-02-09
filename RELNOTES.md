@@ -1,5 +1,17 @@
 # Release Notes
 
+## 1.9.0
+
+Simplistic smart delimiters/space/newline/move/delete implementation:
+
+* Apostrophe, quote and backtick are doubled on insert and the caret positioned in between
+* Open parenthesis, bracket and brace are matched with closing on insert and the caret positioned in between
+* Indentation level of next line is maintained on newline insert
+* Indentation level of next line is increased on newline insert between parentheses, brackets and braces
+* Abbreviation expansion takes indentation level of current line into account
+* Single space before nonspace on line indents (removing the need for tab key) (currently two spaces, no config option), backspace unindents, backward move skips indent levels
+* Forward delete and move are always dumb serving as escape hatch for when the rules get in the way
+
 ## 1.8.0
 
 * Tweak space/enter move/delete areas placement
