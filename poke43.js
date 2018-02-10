@@ -69,6 +69,14 @@ class Editor {
     return (match) ? match[1] : '';
   }
 
+  _endsWithWord(part1) {
+    return part1.match(/\w$/);
+  }
+
+  _startsWithWord(part2) {
+    return part2.match(/^\w/);
+  }
+
   _smartMoveBackward(part1, part2, editData) {
     let currLinePart1 = this._currLinePart1(part1);
 
@@ -78,26 +86,50 @@ class Editor {
   }
 
   _smartLParen(part1, part2, editData) {
+    if (this._startsWithWord(part2)) {
+      return;
+    }
+
     editData.text += ')';
   }
 
   _smartLBracket(part1, part2, editData) {
+    if (this._startsWithWord(part2)) {
+      return;
+    }
+
     editData.text += ']';
   }
 
   _smartLBrace(part1, part2, editData) {
+    if (this._startsWithWord(part2)) {
+      return;
+    }
+
     editData.text += '}';
   }
 
   _smartApostrophe(part1, part2, editData) {
+    if (this._endsWithWord(part1) || this._startsWithWord(part2)) {
+      return;
+    }
+
     editData.text += '\'';
   }
 
   _smartQuote(part1, part2, editData) {
+    if (this._endsWithWord(part1) || this._startsWithWord(part2)) {
+      return;
+    }
+
     editData.text += '"';
   }
 
   _smartBacktick(part1, part2, editData) {
+    if (this._endsWithWord(part1) || this._startsWithWord(part2)) {
+      return;
+    }
+
     editData.text += '`';
   }
 
