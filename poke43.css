@@ -9,12 +9,28 @@
 }
 
 .poke43-editor {
-  min-height: 1.2em;
-  border: 1px solid gray;
+  padding: 2px;
+  border: 1px solid transparent;
   border-radius: 0.5ex;
   white-space: pre;
   font-family: Menlo, monospace;
-  font-size: 1.3em;
+  font-size: 1.4em;
+}
+
+.poke43-editor-editing {
+  border: 1px solid #563d7c;
+  border-radius: 0.5ex;
+  background: white;
+  color: black;
+}
+
+.poke43-line {
+
+}
+
+.poke43-line-part {
+  display: inline-block;
+  position: relative;
 }
 
 .poke43-line-part1 {
@@ -22,7 +38,6 @@
 }
 
 .poke43-line-caret {
-  position: relative;
   left: -1px;
   border-right: 3px solid navy;
 }
@@ -38,7 +53,6 @@
 }
 
 .poke43-line-part2 {
-  position: relative;
   left: -3px;
 }
 

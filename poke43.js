@@ -25,348 +25,820 @@ class Poke {
   }
 }
 
-class Editor {
-  constructor(el) {
-    this._el = el;
-    this._content = this._el.textContent;
-    this._pos = this._content.length;
-    this._part1 = document.createElement('span');
-    this._caret = document.createElement('span');
-    this._part2 = document.createElement('span');
-    this._hammer = new Hammer(this._el);
-
-    this._el.classList.add('poke43-editor');
-    this._el.textContent = '';
-    this._part1.classList.add('poke43-line-part1');
-    this._el.appendChild(this._part1);
-    this._caret.classList.add('poke43-line-caret');
-    this._caret.classList.add('poke43-blink-smooth');
-    this._el.appendChild(this._caret);
-    this._part2.classList.add('poke43-line-part2');
-    this._el.appendChild(this._part2);
-
-    this._update();
+class EditorModel {
+  constructor(text = '') {
+    this._lines = text.split('\n');
+    this._caret = {
+      iLine: 0,
+      iColumn: 0
+    };
   }
 
-  get _parts() {
+  _checkLineIndex(iLine) {
+    let lineUpper = this._lines.length - 1;
+
+    if (iLine < 0 || iLine > lineUpper) {
+      throw new RangeError(`Line index ${iLine} out of bounds [0, ${lineUpper}]`);
+    }
+  }
+
+  _checkInsertLineBeforeIndex(iLine) {
+    let lineUpper = this._lines.length;
+
+    if (iLine < 0 || iLine > lineUpper) {
+      throw new RangeError(`Line index ${iLine} out of bounds [0, ${lineUpper}]`);
+    }
+  }
+
+  _checkInsertLineAfterIndex(iLine) {
+    let lineUpper = this._lines.length - 1;
+
+    if (iLine < -1 || iLine > lineUpper) {
+      throw new RangeError(`Line index ${iLine} out of bounds [-1, ${lineUpper}]`);
+    }
+  }
+
+  _checkColumnIndex(iLine, iColumn) {
+    let columnUpper = this._lines[iLine].length;
+
+    if (iColumn < 0 || iColumn > columnUpper) {
+      throw new RangeError(`Column index ${iColumn} out of bounds [0, ${columnUpper}]`);
+    }
+  }
+
+  get content() {
+    return this._lines.join('\n');
+  }
+
+  set content(text) {
+    this._lines = text.split('\n');
+    this._caret.iLine = 0;
+    this._caret.iColumn = 0;
+  }
+
+  get lines() {
+    return this._lines;
+  }
+
+  line(iLine) {
+    this._checkLineIndex(iLine);
+
+    return this._lines[iLine];
+  }
+
+  lineParts(iLine, iColumn) {
+    this._checkLineIndex(iLine);
+    this._checkColumnIndex(iLine, iColumn);
+
+    let line = this._lines[iLine];
+
     return [
-      this._content.slice(0, this._pos),
-      this._content.slice(this._pos)
+      line.slice(0, iColumn),
+      line.slice(iColumn)
     ];
   }
 
-  _currLinePart1(part1) {
-    return part1.slice(part1.lastIndexOf('\n') + 1);
+  insertLineBefore(iLine, line) {
+    this._checkInsertLineBeforeIndex(iLine);
+
+    this._lines.splice(iLine, 0, line);
+
+    return this;
   }
 
-  _currLinePart1IsIndentOnly(part1) {
-    return this._currLinePart1(part1).match(/^\s*$/);
+  insertLineAfter(iLine, line) {
+    this._checkInsertLineAfterIndex(iLine);
+
+    this._lines.splice(iLine + 1, 0, line);
+
+    return this;
   }
 
-  _currLinePart1Indent(part1) {
-    let match = this._currLinePart1(part1).match(/^(\s+)/);
+  removeLine(iLine) {
+    this._checkLineIndex(iLine);
+
+    this._lines.splice(iLine, 1);
+
+    return this;
+  }
+
+  updateLine(iLine, line) {
+    this._checkLineIndex(iLine);
+
+    this._lines[iLine] = line;
+
+    return this;
+  }
+
+  get caret() {
+    return this._caret;
+  }
+
+  get caretIsAtFirstLine() {
+    return this._caret.iLine === 0;
+  }
+
+  get caretIsAtLastLine() {
+    return this._caret.iLine === this._lines.length - 1;
+  }
+
+  get caretIsAtSOL() {
+    return this._caret.iColumn === 0;
+  }
+
+  get caretIsAtEOL() {
+    let iLastColumn = this._lines[this._caret.iLine].length;
+
+    return this._caret.iColumn === iLastColumn;
+  }
+
+  get caretIsAtSOB() {
+    return this.caretIsAtFirstLine && this.caretIsAtSOL;
+  }
+
+  get caretIsAtEOB() {
+    return this.caretIsAtLastLine && this.caretIsAtEOL;
+  }
+
+  moveCaret(iLine, iColumn = 0) {
+    this._checkLineIndex(iLine);
+    this._checkColumnIndex(iLine, iColumn);
+
+    this._caret.iLine = iLine;
+    this._caret.iColumn = iColumn;
+
+    return this;
+  }
+
+  moveBackward(columnDelta = 1) {
+    return this.moveCaret(this._caret.iLine, this._caret.iColumn - columnDelta);
+  }
+
+  moveForward(columnDelta = 1) {
+    return this.moveCaret(this._caret.iLine, this._caret.iColumn + columnDelta);
+  }
+
+  moveToSOL() {
+    return this.moveCaret(this._caret.iLine);
+  }
+
+  moveToEOL() {
+    let iLastColumn = this._lines[this._caret.iLine].length;
+
+    return this.moveCaret(this._caret.iLine, iLastColumn);
+  }
+
+  moveToPrevEOL() {
+    let iPrevLine = this._caret.iLine - 1,
+      iLastColumn = this._lines[iPrevLine].length;
+
+    return this.moveCaret(iPrevLine, iLastColumn);
+  }
+
+  moveToNextSOL() {
+    return this.moveCaret(this._caret.iLine + 1);
+  }
+
+  moveToSOB() {
+    return this.moveCaret(0);
+  }
+
+  moveToEOB() {
+    let iLastLine = this._lines.length - 1,
+      iLastColumn = this._lines[iLastLine].length;
+
+    return this.moveCaret(iLastLine, iLastColumn);
+  }
+
+  deleteBackward(columnDelta = 1) {
+    let [part1, part2] = this.caretLineParts;
+
+    this.updateCaretLine(`${part1.slice(0, this._caret.iColumn - columnDelta)}${part2}`);
+
+    return this.moveBackward(columnDelta);
+  }
+
+  deleteForward(columnDelta = 1) {
+    let [part1, part2] = this.caretLineParts;
+
+    this.updateCaretLine(`${part1}${part2.slice(columnDelta)}`);
+
+    return this;
+  }
+
+  get caretLine() {
+    return this.line(this._caret.iLine);
+  }
+
+  get caretLineParts() {
+    return this.lineParts(this._caret.iLine, this._caret.iColumn);
+  }
+
+  insertLineAfterCaretLine(line) {
+    return this.insertLineAfter(this._caret.iLine, line);
+  }
+
+  updateCaretLine(line) {
+    return this.updateLine(this._caret.iLine, line);
+  }
+
+  isIndentOnly(part1) {
+    return part1.match(/^\s*$/);
+  }
+
+  getIndent(part1) {
+    let match = part1.match(/^(\s+)/);
 
     return (match) ? match[1] : '';
   }
 
-  _endsWithWord(part1) {
+  endsWithWord(part1) {
     return part1.match(/\w$/);
   }
 
-  _startsWithWord(part2) {
+  startsWithWord(part2) {
     return part2.match(/^\w/);
   }
+}
 
-  _smartMoveBackward(part1, part2, editData) {
-    let currLinePart1 = this._currLinePart1(part1);
+class EditorView {
+  constructor(el, model) {
+    this._el = el;
+    this._model = model;
 
-    if (currLinePart1.length > 1 && this._currLinePart1IsIndentOnly(part1)) {
-      editData.posDelta += 1;
+    this._el.classList.add('poke43-editor');
+    this._el.classList.add('poke43-editor-editing');
+  }
+
+  get _renderedCaretLineIndex() {
+    return Number(this._el.dataset.renderedCaretLineIndex);
+  }
+
+  set _renderedCaretLineIndex(iLine) {
+    this._el.dataset.renderedCaretLineIndex = iLine;
+  }
+
+  get _lineHTML() {
+    return `\
+<span class="poke43-line-part"></span>`;
+  }
+
+  get _caretLineHTML() {
+    return `\
+<span class="poke43-line-part poke43-line-part1"></span>\
+<span class="poke43-line-part poke43-line-caret poke43-blink-smooth">\u200b</span>\
+<span class="poke43-line-part poke43-line-part2"></span>`;
+  }
+
+  insertLine(iBefore) {
+    let elRefLine = this._el.children[iBefore],
+      elNewLine = document.createElement('div');
+
+    elNewLine.classList.add('poke43-line');
+
+    this._el.insertBefore(elNewLine, elRefLine);
+
+    return this;
+  }
+
+  removeLine(iLine) {
+    let elLine = this._el.children[iLine];
+
+    this._el.removeChild(elLine);
+
+    return this;
+  }
+
+  renderLine(iLine) {
+    let line = this._model.line(iLine),
+      elLine = this._el.children[iLine];
+
+    elLine.innerHTML = this._lineHTML;
+    elLine.children[0].textContent = line;
+
+    return this;
+  }
+
+  renderCaretLine() {
+    let renderedCaretLineIndex = this._renderedCaretLineIndex,
+      {iLine} = this._model.caret,
+      [part1, part2] = this._model.caretLineParts,
+      elLine = this._el.children[iLine];
+
+    if (!Number.isNaN(renderedCaretLineIndex) && iLine != renderedCaretLineIndex) {
+      try {
+        // TODO: Line removal makes renderedCaretLineIndex invalid, recalc on remove?
+        this.renderLine(renderedCaretLineIndex);
+      } catch (err) {}
+    }
+    this._renderedCaretLineIndex = iLine;
+
+    elLine.innerHTML = this._caretLineHTML;
+    elLine.children[0].textContent = part1;
+    elLine.children[2].textContent = part2;
+
+    return this;
+  }
+
+  renderFully() {
+    this._el.textContent = '';
+
+    this._model.lines.forEach((line, i) => {
+      this.insertLine(i);
+      this.renderLine(i);
+    });
+
+    return this.renderCaretLine();
+  }
+
+  updateLine(iLine) {
+    let renderedCaretLineIndex = this._renderedCaretLineIndex,
+      line = this._model.line(iLine),
+      elLine = this._el.children[iLine];
+
+    if (iLine === renderedCaretLineIndex) {
+      throw RangeError(`Attempting to update rendered caret line at index ${iLine} like regular line`);
+    }
+
+    elLine.children[0].textContent = line;
+
+    return this;
+  }
+
+  updateCaretLine() {
+    let renderedCaretLineIndex = this._renderedCaretLineIndex,
+      {iLine} = this._model.caret,
+      [part1, part2] = this._model.caretLineParts,
+      elLine = this._el.children[iLine];
+
+    if (iLine != renderedCaretLineIndex) {
+      throw RangeError(`Attempting to update rendered regular line at index ${iLine} like caret line (at index ${renderedCaretLineIndex})`);
+    }
+
+    elLine.children[0].textContent = part1;
+    elLine.children[2].textContent = part2;
+
+    return this;
+  }
+
+  hideCaret() {
+    let {iLine} = this._model.caret,
+      elLine = this._el.children[iLine];
+
+    elLine.children[1].style.visibility = 'hidden';
+  }
+
+  showCaret() {
+    let {iLine} = this._model.caret,
+      elLine = this._el.children[iLine];
+
+    elLine.children[1].style.visibility = 'visible';
+  }
+}
+
+class Editor {
+  constructor(el) {
+    this._el = el;
+    this._model = new poke43.EditorModel(this._el.textContent);
+    this._view = new poke43.EditorView(this._el, this._model);
+    this._hammer = new Hammer(this._el);
+
+    this._view.renderFully();
+  }
+
+  get content() {
+    return this._model.content;
+  }
+
+  set content(text) {
+    this._model.content = text;
+    this._view.renderFully();
+  }
+
+  _handleMoveBackwardAtSOL() {
+    if (this._model.caretIsAtSOL) {
+      if (!this._model.caretIsAtFirstLine) {
+        this._model.moveToPrevEOL();
+        this._view.renderCaretLine();
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  _handleMoveForwardAtEOL() {
+    if (this._model.caretIsAtEOL) {
+      if (!this._model.caretIsAtLastLine) {
+        this._model.moveToNextSOL();
+        this._view.renderCaretLine();
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  _joinCaretLineWithNext() {
+    let iNextLine = this._model.caret.iLine + 1;
+
+    this._model.updateCaretLine(`${this._model.caretLine}${this._model.line(iNextLine)}`);
+    this._model.removeLine(iNextLine);
+    this._view.removeLine(iNextLine);
+    this._view.renderCaretLine();
+  }
+
+  _handleDeleteBackwardAtSOL() {
+    if (this._model.caretIsAtSOL) {
+      if (!this._model.caretIsAtFirstLine) {
+        this._model.moveToPrevEOL();
+        this._joinCaretLineWithNext();
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  _handleDeleteForwardAtEOL() {
+    if (this._model.caretIsAtEOL) {
+      if (!this._model.caretIsAtLastLine) {
+        this._joinCaretLineWithNext();
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  _smartMoveBackward(smartEditData) {
+    if (smartEditData.part1.length > 1 &&
+      this._model.isIndentOnly(smartEditData.part1)
+    ) {
+      smartEditData.columnDelta += 1;
     }
   }
 
-  _smartLParen(part1, part2, editData) {
-    if (this._startsWithWord(part2)) {
+  moveBackward() {
+    if (this._handleMoveBackwardAtSOL()) {
+      return this;
+    }
+
+    let [part1, part2] = this._model.caretLineParts,
+      smartEditData = {
+        part1: part1,
+        part2: part2,
+        columnDelta: 1
+      };
+
+    this._smartMoveBackward(smartEditData);
+
+    this._model.moveBackward(smartEditData.columnDelta);
+    this._view.updateCaretLine();
+
+    return this;
+  }
+
+  moveForward() {
+    if (this._handleMoveForwardAtEOL()) {
+      return this;
+    }
+
+    this._model.moveForward();
+    this._view.updateCaretLine();
+
+    return this;
+  }
+
+  moveBackwardWB() {
+    if (this._handleMoveBackwardAtSOL()) {
+      return this;
+    }
+
+    let [part1, part2] = this._model.caretLineParts,
+      match = part1.match(/(\w+)$/);
+
+    if (match) {
+      this._model.moveBackward(match[1].length);
+      this._view.updateCaretLine();
+    } else {
+      let match = part1.match(/(\W+)$/);
+
+      if (match) {
+        this._model.moveBackward(match[1].length);
+        this._view.updateCaretLine();
+      }
+    }
+
+    return this;
+  }
+
+  moveForwardWB() {
+    if (this._handleMoveForwardAtEOL()) {
+      return this;
+    }
+
+    let [part1, part2] = this._model.caretLineParts,
+      match = part2.match(/^(\w+)/);
+
+    if (match) {
+      this._model.moveForward(match[1].length);
+      this._view.updateCaretLine();
+    } else {
+      let match = part2.match(/^(\W+)/);
+
+      if (match) {
+        this._model.moveForward(match[1].length);
+        this._view.updateCaretLine();
+      }
+    }
+
+    return this;
+  }
+
+  moveToSOL() {
+    if (this._handleMoveBackwardAtSOL()) {
+      return this;
+    }
+
+    this._model.moveToSOL();
+    this._view.updateCaretLine();
+
+    return this;
+  }
+
+  moveToEOL() {
+    if (this._handleMoveForwardAtEOL()) {
+      return this;
+    }
+
+    this._model.moveToEOL();
+    this._view.updateCaretLine();
+
+    return this;
+  }
+
+  moveToSOB() {
+    this._model.moveToSOB();
+    this._view.renderCaretLine();
+
+    return this;
+  }
+
+  moveToEOB() {
+    this._model.moveToEOB();
+    this._view.renderCaretLine();
+
+    return this;
+  }
+
+  deleteBackward() {
+    if (this._handleDeleteBackwardAtSOL()) {
+      return this;
+    }
+
+    let [part1, part2] = this._model.caretLineParts,
+      smartEditData = {
+        part1: part1,
+        part2: part2,
+        columnDelta: 1
+      };
+
+    this._smartMoveBackward(smartEditData);
+
+    this._model.deleteBackward(smartEditData.columnDelta);
+    this._view.updateCaretLine();
+
+    return this;
+  }
+
+  deleteForward() {
+    if (this._handleDeleteForwardAtEOL()) {
+      return this;
+    }
+
+    this._model.deleteForward();
+    this._view.updateCaretLine();
+
+    return this;
+  }
+
+  deleteBackwardWB() {
+    if (this._handleDeleteBackwardAtSOL()) {
+      return this;
+    }
+
+    let [part1, part2] = this._model.caretLineParts,
+      match = part1.match(/(\w+)$/);
+
+    if (match) {
+      this._model.deleteBackward(match[1].length);
+      this._view.updateCaretLine();
+    } else {
+      let match = part1.match(/(\W+)$/);
+
+      if (match) {
+        this._model.deleteBackward(match[1].length);
+        this._view.updateCaretLine();
+      }
+    }
+
+    return this;
+  }
+
+  deleteForwardWB() {
+    if (this._handleDeleteForwardAtEOL()) {
+      return this;
+    }
+
+    let [part1, part2] = this._model.caretLineParts,
+      match = part2.match(/^(\w+)/);
+
+    if (match) {
+      this._model.deleteForward(match[1].length);
+      this._view.updateCaretLine();
+    } else {
+      let match = part2.match(/(^\W+)/);
+
+      if (match) {
+        this._model.deleteForward(match[1].length);
+        this._view.updateCaretLine();
+      }
+    }
+
+    return this;
+  }
+
+  _smartLParen(smartEditData) {
+    if (this._model.startsWithWord(smartEditData.part2)) {
       return;
     }
 
-    editData.text += ')';
+    smartEditData.part += ')';
   }
 
-  _smartLBracket(part1, part2, editData) {
-    if (this._startsWithWord(part2)) {
+  _smartLBracket(smartEditData) {
+    if (this._model.startsWithWord(smartEditData.part2)) {
       return;
     }
 
-    editData.text += ']';
+    smartEditData.part += ']';
   }
 
-  _smartLBrace(part1, part2, editData) {
-    if (this._startsWithWord(part2)) {
+  _smartLBrace(smartEditData) {
+    if (this._model.startsWithWord(smartEditData.part2)) {
       return;
     }
 
-    editData.text += '}';
+    smartEditData.part += '}';
   }
 
-  _smartApostrophe(part1, part2, editData) {
-    if (this._endsWithWord(part1) || this._startsWithWord(part2)) {
+  _smartApostrophe(smartEditData) {
+    if (this._model.endsWithWord(smartEditData.part1) ||
+      this._model.startsWithWord(smartEditData.part2)
+    ) {
       return;
     }
 
-    editData.text += '\'';
+    smartEditData.part += '\'';
   }
 
-  _smartQuote(part1, part2, editData) {
-    if (this._endsWithWord(part1) || this._startsWithWord(part2)) {
+  _smartQuote(smartEditData) {
+    if (this._model.endsWithWord(smartEditData.part1) ||
+      this._model.startsWithWord(smartEditData.part2)
+    ) {
       return;
     }
 
-    editData.text += '"';
+    smartEditData.part += '"';
   }
 
-  _smartBacktick(part1, part2, editData) {
-    if (this._endsWithWord(part1) || this._startsWithWord(part2)) {
+  _smartBacktick(smartEditData) {
+    if (this._model.endsWithWord(smartEditData.part1) ||
+      this._model.startsWithWord(smartEditData.part2)
+    ) {
       return;
     }
 
-    editData.text += '`';
+    smartEditData.part += '`';
   }
 
-  _smartSpace(part1, part2, editData) {
-    if (this._currLinePart1IsIndentOnly(part1)) {
-      editData.text += ' ';
-      editData.posDelta += 1;
+  _smartSpace(smartEditData) {
+    if (this._model.isIndentOnly(smartEditData.part1)) {
+      smartEditData.part += ' ';
+      smartEditData.columnDelta += 1;
     }
   }
 
-  _smartNewline(part1, part2, editData) {
-    let prevChar = part1[part1.length - 1],
-      nextChar = part2[0],
-      indent = this._currLinePart1Indent(part1);
+  _smartNewline(smartEditData) {
+    let prevChar = smartEditData.part1[smartEditData.part1.length - 1],
+      nextChar = smartEditData.part2[0],
+      indent = this._model.getIndent(smartEditData.part1);
 
     if (
       (prevChar === '(' && nextChar === ')') ||
       (prevChar === '[' && nextChar === ']') ||
       (prevChar === '{' && nextChar === '}')
     ) {
-      editData.text += `${indent}  \n${indent}`;
-      editData.posDelta += indent.length + 2;
+      smartEditData.part += `${indent}  \n${indent}`;
+      smartEditData.columnDelta += indent.length + 2;
     } else if(
       (prevChar === '(' && nextChar !== ')') ||
       (prevChar === '[' && nextChar !== ']') ||
       (prevChar === '{' && nextChar !== '}')
     ) {
-      editData.text += `${indent}  `;
-      editData.posDelta += indent.length + 2;
+      smartEditData.part += `${indent}  `;
+      smartEditData.columnDelta += indent.length + 2;
     } else {
-      editData.text += indent;
-      editData.posDelta += indent.length;
+      smartEditData.part += indent;
+      smartEditData.columnDelta += indent.length;
     }
   }
 
-  _update() {
-    let [part1, part2] = this._parts;
+  // Assumes at least one newline in smartEditData.part
+  _modelEditData(smartEditData) {
+    let insertAfterCaretLine = smartEditData.part.split('\n'),
+      updateCaretLine = `${smartEditData.part1}${insertAfterCaretLine.shift()}`,
+      iLast = insertAfterCaretLine.length - 1;
 
-    this._part1.textContent = part1;
-    this._part2.textContent = part2;
+    insertAfterCaretLine[iLast] = `${insertAfterCaretLine[iLast]}${smartEditData.part2}`;
+
+    let partBeforeNewCaret = smartEditData.part.slice(0, smartEditData.columnDelta),
+      partBeforeNewCaretLines = partBeforeNewCaret.split('\n'),
+      newlinesBeforeNewCaret = partBeforeNewCaretLines.length - 1;
+
+    return {
+      updateCaretLine: updateCaretLine,
+      insertAfterCaretLine: insertAfterCaretLine,
+      newCaret: {
+        iLine: smartEditData.caret.iLine + newlinesBeforeNewCaret,
+        iColumn: partBeforeNewCaretLines[newlinesBeforeNewCaret].length
+      }
+    };
   }
 
-  moveBackward() {
-    if (this._pos === 0) {
-      return;
-    }
+  // TODO: Unify simple and smart edit into one method
+  _applySmartEdit(smartEditData) {
+    let modelEditData = this._modelEditData(smartEditData);
 
-    let [part1, part2] = this._parts,
-      editData = {
-        posDelta: 1
+    this._model.updateCaretLine(modelEditData.updateCaretLine);
+    modelEditData.insertAfterCaretLine.forEach((line, i) => {
+      this._model.insertLineAfter(smartEditData.caret.iLine + i, line);
+    });
+    this._model.moveCaret(modelEditData.newCaret.iLine, modelEditData.newCaret.iColumn);
+
+    // TODO: Render only affected lines
+    this._view.renderFully();
+  }
+
+  insert(part) {
+    let [part1, part2] = this._model.caretLineParts,
+      smartEditData = {
+        caret: this._model.caret,
+        part1: part1,
+        part2: part2,
+        part: part,
+        columnDelta: part.length
       };
 
-    this._smartMoveBackward(part1, part2, editData);
+    switch (part) {
+    case '(': this._smartLParen(smartEditData); break;
+    case '[': this._smartLBracket(smartEditData); break;
+    case '{': this._smartLBrace(smartEditData); break;
+    case '\'': this._smartApostrophe(smartEditData); break;
+    case '"': this._smartQuote(smartEditData); break;
+    case '`': this._smartBacktick(smartEditData); break;
+    case ' ': this._smartSpace(smartEditData); break;
+    case '\n':
+      this._smartNewline(smartEditData);
+      this._applySmartEdit(smartEditData);
 
-    this._pos -= editData.posDelta;
-    this._update();
-  }
-
-  moveForward() {
-    if (this._pos === this._content.length) {
-      return;
+      return this;
     }
 
-    this._pos += 1;
-    this._update();
-  }
+    this._model.updateCaretLine(`${part1}${smartEditData.part}${part2}`);
+    this._model.moveForward(smartEditData.columnDelta);
+    this._view.updateCaretLine();
 
-  moveBackwardWB() {
-    if (this._pos === 0) {
-      return;
-    }
-
-    let [part1, part2] = this._parts,
-      match = part1.match(/(\w+)$/);
-
-    if (match) {
-      this._pos -= match[1].length;
-      this._update();
-    } else {
-      let match = part1.match(/(\W+)$/);
-
-      if (match) {
-        this._pos -= match[1].length;
-        this._update();
-      }
-    }
-  }
-
-  moveForwardWB() {
-    if (this._pos === this._content.length) {
-      return;
-    }
-
-    let [part1, part2] = this._parts,
-      match = part2.match(/^(\w+)/);
-
-    if (match) {
-      this._pos += match[1].length;
-      this._update();
-    } else {
-      let match = part2.match(/^(\W+)/);
-
-      if (match) {
-        this._pos += match[1].length;
-        this._update();
-      }
-    }
-  }
-
-  moveBackwardSOL() {
-    let [part1, part2] = this._parts,
-      posPrevNL = part1.lastIndexOf('\n');
-
-    this._pos = posPrevNL + 1;
-    this._update();
-  }
-
-  moveForwardEOL() {
-    let [part1, part2] = this._parts,
-      posNextNL = part2.indexOf('\n');
-
-    this._pos = (posNextNL != -1) ?
-      part1.length + posNextNL :
-      this._content.length;
-    this._update();
-  }
-
-  moveBackwardSOB() {
-    this._pos = 0;
-    this._update();
-  }
-
-  moveForwardEOB() {
-    this._pos = this._content.length;
-    this._update();
-  }
-
-  deleteBackward() {
-    if (this._pos === 0) {
-      return;
-    }
-
-    let [part1, part2] = this._parts,
-      editData = {
-        posDelta: 1
-      };
-
-    this._smartMoveBackward(part1, part2, editData);
-
-    this._pos -= editData.posDelta;
-    this._content = `${this._content.slice(0, this._pos)}${part2}`;
-    this._update();
-  }
-
-  deleteForward() {
-    if (this._pos === this._content.length) {
-      return;
-    }
-
-    this._content = `${this._content.slice(0, this._pos)}${this._content.slice(this._pos + 1)}`;
-    this._update();
-  }
-
-  deleteBackwardWB() {
-    if (this._pos === 0) {
-      return;
-    }
-
-    let [part1, part2] = this._parts,
-      match = part1.match(/(\w+)$/);
-
-    if (match) {
-      this._content = `${part1.slice(0, match.index)}${part2}`;
-      this._pos -= match[1].length;
-      this._update();
-    } else {
-      let match = part1.match(/(\W+)$/);
-
-      if (match) {
-        this._content = `${part1.slice(0, match.index)}${part2}`;
-        this._pos -= match[1].length;
-        this._update();
-      }
-    }
-  }
-
-  deleteForwardWB() {
-    if (this._pos === this._content.length) {
-      return;
-    }
-
-    let [part1, part2] = this._parts,
-      match = part2.match(/^(\w+)/);
-
-    if (match) {
-      this._content = `${part1}${part2.slice(match[1].length)}`;
-      this._update();
-    } else {
-      let match = part2.match(/(^\W+)/);
-
-      if (match) {
-        this._content = `${part1}${part2.slice(match[1].length)}`;
-        this._update();
-      }
-    }
-  }
-
-  insert(text) {
-    let [part1, part2] = this._parts,
-      editData = {
-        text: text,
-        posDelta: text.length
-      };
-
-    switch (text) {
-    case '(': this._smartLParen(part1, part2, editData); break;
-    case '[': this._smartLBracket(part1, part2, editData); break;
-    case '{': this._smartLBrace(part1, part2, editData); break;
-    case '\'': this._smartApostrophe(part1, part2, editData); break;
-    case '"': this._smartQuote(part1, part2, editData); break;
-    case '`': this._smartBacktick(part1, part2, editData); break;
-    case ' ': this._smartSpace(part1, part2, editData); break;
-    case '\n': this._smartNewline(part1, part2, editData); break;
-    }
-
-    this._content = `${part1}${editData.text}${part2}`;
-    this._pos += editData.posDelta;
-    this._update();
+    return this;
   }
 
   expandAbbreviation() {
-    let abbr = emmetExtractAbbreviation.extractAbbreviation(this._content, this._pos, true);
+    let line = this._model.caretLine,
+      abbr = emmetExtractAbbreviation.extractAbbreviation(
+        line,
+        this._model.caret.iColumn,
+        true
+      );
 
     if (abbr) {
-      let part1 = this._content.slice(0, abbr.location),
-        part2 = this._content.slice(abbr.location + abbr.abbreviation.length),
-        indent = this._currLinePart1Indent(part1),
+      let part1 = line.slice(0, abbr.location),
+        part2 = line.slice(abbr.location + abbr.abbreviation.length),
+        indent = this._model.getIndent(part1),
         expanded = emmet.expand(abbr.abbreviation, {
           field: emmetFieldParser.createToken,
           profile: {
@@ -376,18 +848,31 @@ class Editor {
         }),
         expanded1 = expanded.
           split('\n').
-          map((line, i) => (i === 0) ? line : `${indent}${line}`).
+          map((l, i) => (i === 0) ? l : `${indent}${l}`).
           join('\n'),
         {string, fields} = emmetFieldParser.parse(expanded1);
 
-      this._content = `${part1}${string}${part2}`;
-      this._pos = part1.length + ((fields.length > 0) ? fields[0].location : string.length);
-      this._update();
+      if (expanded1.match(/\n/)) {
+        this._applySmartEdit({
+          caret: this._model.caret,
+          part1: part1,
+          part2: part2,
+          part: string,
+          columnDelta: (fields.length > 0) ? fields[0].location : string.length
+        });
+      } else {
+        this._model.updateCaretLine(`${part1}${string}${part2}`);
+        this._model.moveCaret(this._model.caret.iLine,
+          part1.length + ((fields.length > 0) ? fields[0].location : string.length));
+        this._view.updateCaretLine();
+      }
     }
+
+    return this;
   }
 
   evalJS() {
-    let res = eval(this._content),
+    let res = eval(this.content),
       snip = (s, n) => {
         let s1 = s.replace(/\s+/g, ' ');
 
@@ -395,8 +880,10 @@ class Editor {
       };
 
     if (window.Peek42 && ['boolean', 'number', 'string'].includes(typeof res)) {
-      p(res, snip(this._content, 101));
+      p(res, snip(this.content, 101));
     }
+
+    return this;
   }
 }
 
@@ -620,8 +1107,8 @@ class EditorKeyboard {
     <div class="poke43-keyboard-row" style="display: none;">
 <span class="poke43-key-move1" data-type="EditorKeyCharacterSpaceMove"
   data-text="a"
-  data-command3="moveForwardEOL"
-  data-command7="moveBackwardSOL"></span>
+  data-command3="moveToEOL"
+  data-command7="moveToSOL"></span>
 <span data-type="EditorKeyCharacterSpaceMove" data-text="s"></span>
 <span data-type="EditorKeyCharacterSpaceMove" data-text="d"></span>
 <span data-type="EditorKeyCharacterSpaceMove" data-text="f"></span>
@@ -681,8 +1168,8 @@ class EditorKeyboard {
     <div class="poke43-keyboard-row" style="display: none;">
 <span class="poke43-key-move1" data-type="EditorKeyCharSymSpaceMove"
   data-text="a"
-  data-command3="moveForwardEOL"
-  data-command7="moveBackwardSOL"></span>
+  data-command3="moveToEOL"
+  data-command7="moveToSOL"></span>
 <span data-type="EditorKeyCharSymSpaceMove"
   data-text="s" data-text2="_" data-text4="-"></span>
 <span data-type="EditorKeyCharSymSpaceMove"
@@ -751,8 +1238,8 @@ class EditorKeyboard {
     <div class="poke43-keyboard-row" style="display: none;">
 <span class="poke43-key-move1" data-type="EditorKeyCharacterSpaceMove"
   data-text="а"
-  data-command3="moveForwardEOL"
-  data-command7="moveBackwardSOL"></span>
+  data-command3="moveToEOL"
+  data-command7="moveToSOL"></span>
 <span data-type="EditorKeyCharacterSpaceMove" data-text="с"></span>
 <span data-type="EditorKeyCharacterSpaceMove" data-text="д"></span>
 <span data-type="EditorKeyCharacterSpaceMove" data-text="ф"></span>
@@ -817,8 +1304,8 @@ class EditorKeyboard {
     <div class="poke43-keyboard-row" style="display: none;">
 <span class="poke43-key-move1" data-type="EditorKeyCharSymSpaceMove"
   data-text="а"
-  data-command3="moveForwardEOL"
-  data-command7="moveBackwardSOL"></span>
+  data-command3="moveToEOL"
+  data-command7="moveToSOL"></span>
 <span data-type="EditorKeyCharSymSpaceMove"
   data-text="с" data-text2="_" data-text4="-"></span>
 <span data-type="EditorKeyCharSymSpaceMove"
@@ -959,12 +1446,14 @@ ${this._langBlockBgBgPhoneticSymLayout}
 
   hide() {
     this._el.style.display = 'none';
-    this._editor._caret.style.visibility = 'hidden';
+    this._editor._el.classList.remove('poke43-editor-editing');
+    this._editor._view.hideCaret();
   }
 
   show() {
     this._el.style.display = '';
-    this._editor._caret.style.visibility = 'visible';
+    this._editor._el.classList.add('poke43-editor-editing');
+    this._editor._view.showCaret();
   }
 
   expandAbbreviation() {
@@ -1400,6 +1889,8 @@ class EditorKeyCustom extends EditorKey {
 // exports
 window.poke43 = {
   Poke: Poke,
+  EditorModel: EditorModel,
+  EditorView: EditorView,
   Editor: Editor,
   EditorKeyboard: EditorKeyboard,
   Key: Key,
