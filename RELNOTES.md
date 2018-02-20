@@ -1,5 +1,10 @@
 # Release Notes
 
+## 1.10.0
+
+* Implement editor buffer as array of lines instead of single string
+* Tweak smart delimiters heuristic a bit
+
 ## 1.9.0
 
 Simplistic smart delimiters/space/newline/move/delete implementation:
