@@ -1,5 +1,12 @@
 # Release Notes
 
+## 1.11.0
+
+Changes to aid larger files editing
+
+* Enable editor scrolling and set relevant styles
+* Only render affected lines on edit instead of full re-render
+
 ## 1.10.0
 
 * Implement editor buffer as array of lines instead of single string
