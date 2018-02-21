@@ -9,12 +9,15 @@
 }
 
 .poke43-editor {
+  overflow: scroll;
   padding: 2px;
-  border: 1px solid transparent;
+  border: 1px solid #dedede;
   border-radius: 0.5ex;
+  background: #fdfdfd;
+  color: black;
   white-space: pre;
   font-family: Menlo, monospace;
-  font-size: 1.4em;
+  font-size: 1.3em;
 }
 
 .poke43-editor-editing {
@@ -25,12 +28,13 @@
 }
 
 .poke43-line {
-
+  white-space: nowrap;
 }
 
 .poke43-line-part {
   display: inline-block;
   position: relative;
+  white-space: pre;
 }
 
 .poke43-line-part1 {

@@ -290,8 +290,19 @@ class EditorView {
 <span class="poke43-line-part poke43-line-part2"></span>`;
   }
 
-  insertLine(iBefore) {
-    let elRefLine = this._el.children[iBefore],
+  insertLineBefore(iLine) {
+    let elRefLine = this._el.children[iLine],
+      elNewLine = document.createElement('div');
+
+    elNewLine.classList.add('poke43-line');
+
+    this._el.insertBefore(elNewLine, elRefLine);
+
+    return this;
+  }
+
+  insertLineAfter(iLine) {
+    let elRefLine = this._el.children[iLine].nextElementSibling,
       elNewLine = document.createElement('div');
 
     elNewLine.classList.add('poke43-line');
@@ -344,7 +355,7 @@ class EditorView {
     this._el.textContent = '';
 
     this._model.lines.forEach((line, i) => {
-      this.insertLine(i);
+      this.insertLineBefore(i);
       this.renderLine(i);
     });
 
@@ -401,7 +412,9 @@ class Editor {
     this._el = el;
     this._model = new poke43.EditorModel(this._el.textContent);
     this._view = new poke43.EditorView(this._el, this._model);
-    this._hammer = new Hammer(this._el);
+    this._hammer = new Hammer(this._el, {
+      touchAction: 'auto'
+    });
 
     this._view.renderFully();
   }
@@ -475,11 +488,11 @@ class Editor {
     return false;
   }
 
-  _smartMoveBackward(smartEditData) {
-    if (smartEditData.part1.length > 1 &&
-      this._model.isIndentOnly(smartEditData.part1)
+  _smartMoveBackward(editData) {
+    if (editData.part1.length > 1 &&
+      this._model.isIndentOnly(editData.part1)
     ) {
-      smartEditData.columnDelta += 1;
+      editData.columnDelta += 1;
     }
   }
 
@@ -489,15 +502,15 @@ class Editor {
     }
 
     let [part1, part2] = this._model.caretLineParts,
-      smartEditData = {
+      editData = {
         part1: part1,
         part2: part2,
         columnDelta: 1
       };
 
-    this._smartMoveBackward(smartEditData);
+    this._smartMoveBackward(editData);
 
-    this._model.moveBackward(smartEditData.columnDelta);
+    this._model.moveBackward(editData.columnDelta);
     this._view.updateCaretLine();
 
     return this;
@@ -602,15 +615,15 @@ class Editor {
     }
 
     let [part1, part2] = this._model.caretLineParts,
-      smartEditData = {
+      editData = {
         part1: part1,
         part2: part2,
         columnDelta: 1
       };
 
-    this._smartMoveBackward(smartEditData);
+    this._smartMoveBackward(editData);
 
-    this._model.deleteBackward(smartEditData.columnDelta);
+    this._model.deleteBackward(editData.columnDelta);
     this._view.updateCaretLine();
 
     return this;
@@ -673,101 +686,101 @@ class Editor {
     return this;
   }
 
-  _smartLParen(smartEditData) {
-    if (this._model.startsWithWord(smartEditData.part2)) {
+  _smartLParen(editData) {
+    if (this._model.startsWithWord(editData.part2)) {
       return;
     }
 
-    smartEditData.part += ')';
+    editData.part += ')';
   }
 
-  _smartLBracket(smartEditData) {
-    if (this._model.startsWithWord(smartEditData.part2)) {
+  _smartLBracket(editData) {
+    if (this._model.startsWithWord(editData.part2)) {
       return;
     }
 
-    smartEditData.part += ']';
+    editData.part += ']';
   }
 
-  _smartLBrace(smartEditData) {
-    if (this._model.startsWithWord(smartEditData.part2)) {
+  _smartLBrace(editData) {
+    if (this._model.startsWithWord(editData.part2)) {
       return;
     }
 
-    smartEditData.part += '}';
+    editData.part += '}';
   }
 
-  _smartApostrophe(smartEditData) {
-    if (this._model.endsWithWord(smartEditData.part1) ||
-      this._model.startsWithWord(smartEditData.part2)
+  _smartApostrophe(editData) {
+    if (this._model.endsWithWord(editData.part1) ||
+      this._model.startsWithWord(editData.part2)
     ) {
       return;
     }
 
-    smartEditData.part += '\'';
+    editData.part += '\'';
   }
 
-  _smartQuote(smartEditData) {
-    if (this._model.endsWithWord(smartEditData.part1) ||
-      this._model.startsWithWord(smartEditData.part2)
+  _smartQuote(editData) {
+    if (this._model.endsWithWord(editData.part1) ||
+      this._model.startsWithWord(editData.part2)
     ) {
       return;
     }
 
-    smartEditData.part += '"';
+    editData.part += '"';
   }
 
-  _smartBacktick(smartEditData) {
-    if (this._model.endsWithWord(smartEditData.part1) ||
-      this._model.startsWithWord(smartEditData.part2)
+  _smartBacktick(editData) {
+    if (this._model.endsWithWord(editData.part1) ||
+      this._model.startsWithWord(editData.part2)
     ) {
       return;
     }
 
-    smartEditData.part += '`';
+    editData.part += '`';
   }
 
-  _smartSpace(smartEditData) {
-    if (this._model.isIndentOnly(smartEditData.part1)) {
-      smartEditData.part += ' ';
-      smartEditData.columnDelta += 1;
+  _smartSpace(editData) {
+    if (this._model.isIndentOnly(editData.part1)) {
+      editData.part += ' ';
+      editData.columnDelta += 1;
     }
   }
 
-  _smartNewline(smartEditData) {
-    let prevChar = smartEditData.part1[smartEditData.part1.length - 1],
-      nextChar = smartEditData.part2[0],
-      indent = this._model.getIndent(smartEditData.part1);
+  _smartNewline(editData) {
+    let prevChar = editData.part1[editData.part1.length - 1],
+      nextChar = editData.part2[0],
+      indent = this._model.getIndent(editData.part1);
 
     if (
       (prevChar === '(' && nextChar === ')') ||
       (prevChar === '[' && nextChar === ']') ||
       (prevChar === '{' && nextChar === '}')
     ) {
-      smartEditData.part += `${indent}  \n${indent}`;
-      smartEditData.columnDelta += indent.length + 2;
+      editData.part += `${indent}  \n${indent}`;
+      editData.columnDelta += indent.length + 2;
     } else if(
       (prevChar === '(' && nextChar !== ')') ||
       (prevChar === '[' && nextChar !== ']') ||
       (prevChar === '{' && nextChar !== '}')
     ) {
-      smartEditData.part += `${indent}  `;
-      smartEditData.columnDelta += indent.length + 2;
+      editData.part += `${indent}  `;
+      editData.columnDelta += indent.length + 2;
     } else {
-      smartEditData.part += indent;
-      smartEditData.columnDelta += indent.length;
+      editData.part += indent;
+      editData.columnDelta += indent.length;
     }
   }
 
-  // Assumes at least one newline in smartEditData.part
-  _modelEditData(smartEditData) {
-    let insertAfterCaretLine = smartEditData.part.split('\n'),
-      updateCaretLine = `${smartEditData.part1}${insertAfterCaretLine.shift()}`,
+  // Assumes at least one newline in editData.part
+  _modelEditData(editData) {
+    let insertAfterCaretLine = editData.part.split('\n'),
+      updateCaretLine = `${editData.part1}${insertAfterCaretLine.shift()}`,
       iLast = insertAfterCaretLine.length - 1;
 
-    insertAfterCaretLine[iLast] = `${insertAfterCaretLine[iLast]}${smartEditData.part2}`;
+    insertAfterCaretLine[iLast] = `${insertAfterCaretLine[iLast]}${editData.part2}`;
 
-    let partBeforeNewCaret = smartEditData.part.slice(0, smartEditData.columnDelta),
+    let partBeforeNewCaret = editData.part.slice(0, editData.columnDelta),
       partBeforeNewCaretLines = partBeforeNewCaret.split('\n'),
       newlinesBeforeNewCaret = partBeforeNewCaretLines.length - 1;
 
@@ -775,29 +788,29 @@ class Editor {
       updateCaretLine: updateCaretLine,
       insertAfterCaretLine: insertAfterCaretLine,
       newCaret: {
-        iLine: smartEditData.caret.iLine + newlinesBeforeNewCaret,
+        iLine: editData.caret.iLine + newlinesBeforeNewCaret,
         iColumn: partBeforeNewCaretLines[newlinesBeforeNewCaret].length
       }
     };
   }
 
-  // TODO: Unify simple and smart edit into one method
-  _applySmartEdit(smartEditData) {
-    let modelEditData = this._modelEditData(smartEditData);
+  // TODO: Unify this and the various adhoc single line edits into one method
+  _applyEdit(editData) {
+    let modelEditData = this._modelEditData(editData);
 
     this._model.updateCaretLine(modelEditData.updateCaretLine);
     modelEditData.insertAfterCaretLine.forEach((line, i) => {
-      this._model.insertLineAfter(smartEditData.caret.iLine + i, line);
+      this._model.insertLineAfter(editData.caret.iLine + i, line);
+      this._view.insertLineAfter(editData.caret.iLine + i);
+      this._view.renderLine(editData.caret.iLine + i + 1);
     });
     this._model.moveCaret(modelEditData.newCaret.iLine, modelEditData.newCaret.iColumn);
-
-    // TODO: Render only affected lines
-    this._view.renderFully();
+    this._view.renderCaretLine();
   }
 
   insert(part) {
     let [part1, part2] = this._model.caretLineParts,
-      smartEditData = {
+      editData = {
         caret: this._model.caret,
         part1: part1,
         part2: part2,
@@ -806,22 +819,22 @@ class Editor {
       };
 
     switch (part) {
-    case '(': this._smartLParen(smartEditData); break;
-    case '[': this._smartLBracket(smartEditData); break;
-    case '{': this._smartLBrace(smartEditData); break;
-    case '\'': this._smartApostrophe(smartEditData); break;
-    case '"': this._smartQuote(smartEditData); break;
-    case '`': this._smartBacktick(smartEditData); break;
-    case ' ': this._smartSpace(smartEditData); break;
+    case '(': this._smartLParen(editData); break;
+    case '[': this._smartLBracket(editData); break;
+    case '{': this._smartLBrace(editData); break;
+    case '\'': this._smartApostrophe(editData); break;
+    case '"': this._smartQuote(editData); break;
+    case '`': this._smartBacktick(editData); break;
+    case ' ': this._smartSpace(editData); break;
     case '\n':
-      this._smartNewline(smartEditData);
-      this._applySmartEdit(smartEditData);
+      this._smartNewline(editData);
+      this._applyEdit(editData);
 
       return this;
     }
 
-    this._model.updateCaretLine(`${part1}${smartEditData.part}${part2}`);
-    this._model.moveForward(smartEditData.columnDelta);
+    this._model.updateCaretLine(`${part1}${editData.part}${part2}`);
+    this._model.moveForward(editData.columnDelta);
     this._view.updateCaretLine();
 
     return this;
@@ -853,7 +866,7 @@ class Editor {
         {string, fields} = emmetFieldParser.parse(expanded1);
 
       if (expanded1.match(/\n/)) {
-        this._applySmartEdit({
+        this._applyEdit({
           caret: this._model.caret,
           part1: part1,
           part2: part2,
