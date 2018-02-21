@@ -1,6 +1,6 @@
 # Poke43
 
-Touch based browser writing system experiments
+Touch based browser edit components
 
 ![Screenshot](./screenshot.png)
 ![Screenshot1](./screenshot1.png)

@@ -1,11 +1,11 @@
 {
   "name": "poke43",
   "version": "1.11.0",
-  "description": "Touch based browser writing system experiments",
+  "description": "Touch based browser edit components",
   "keywords": [
     "touch",
     "browser",
-    "writing"
+    "edit"
   ],
   "homepage": "https://github.com/rpeev/poke43#readme",
   "repository": {
