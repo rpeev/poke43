@@ -284,7 +284,7 @@ class EditorView {
   get _caretLineHTML() {
     return `\
 <span class="poke43-line-part poke43-line-part1">\u200b</span>\
-<span class="poke43-line-part poke43-line-caret poke43-blink-smooth">\u200b</span>\
+<span class="poke43-line-part poke43-line-caret poke43-blink-border-color">\u200b</span>\
 <span class="poke43-line-part poke43-line-part2">\u200b</span>`;
   }
 
@@ -337,7 +337,7 @@ class EditorView {
 
     if (!Number.isNaN(renderedCaretLineIndex) && iLine != renderedCaretLineIndex) {
       try {
-        // TODO: Line removal makes renderedCaretLineIndex invalid, recalc on remove?
+        // TODO: Line insertion/removal can make renderedCaretLineIndex incorrect/invalid, recalc on insert/remove?
         this.renderLine(renderedCaretLineIndex);
       } catch (err) {}
     }
@@ -466,6 +466,7 @@ class Editor {
     return Math.floor(bufferTouchCoords.y / this._lineHeight);
   }
 
+  // Turns out this works pretty good for non monospaced fonts as well
   _columnIndex(bufferTouchCoords, iLine) {
     let iColumn = this._model.line(iLine).length,
       elLine = this._el.children[iLine];
@@ -478,7 +479,6 @@ class Editor {
         let partRect = elPart.getBoundingClientRect(),
           charWidth = partRect.width / text.length;
 
-        // TODO: Deal with non monospace fonts?
         iColumn = Math.min(Math.floor(bufferTouchCoords.x / charWidth), iColumn);
 
         break;
