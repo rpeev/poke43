@@ -1,5 +1,5 @@
 /*
-  Poke43 - Touch based browser writing system experiments
+  Poke43 - Touch based browser edit components
 
   Copyright (c) 2018 Radoslav Peev <rpeev@ymail.com> (MIT License)
 */
