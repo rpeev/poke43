@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.12.0
+
+* Move caret to corresponding line/column on tap
+
 ## 1.11.0
 
 Changes to aid larger files editing
