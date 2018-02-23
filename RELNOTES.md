@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.13.0
+
+* Fix caret line rendering issue (the part after the caret was slightly displaced and blurry)
+
 ## 1.12.0
 
 * Move caret to corresponding line/column on tap
