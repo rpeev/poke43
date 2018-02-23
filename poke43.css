@@ -31,6 +31,10 @@
   white-space: nowrap;
 }
 
+.poke43-line-active {
+
+}
+
 .poke43-line-part {
   display: inline-block;
   position: relative;
@@ -183,8 +187,8 @@
 .poke43-key-flash0 {
   position: relative;
   z-index: 1;
-  top: 0.2ex;
   left: 0.2ex;
+  top: 0.2ex;
 }
 
 .poke43-key-flash0 .poke43-key-hint0 {
@@ -205,8 +209,8 @@
 .poke43-key-flash2 {
   position: relative;
   z-index: 1;
-  top: -0.6ex;
   right: -0.6ex;
+  top: -0.6ex;
 }
 
 .poke43-key-flash2 .poke43-key-hint2 {
@@ -228,8 +232,8 @@
 .poke43-key-flash4 {
   position: relative;
   z-index: 1;
-  bottom: -0.6ex;
   right: -0.6ex;
+  bottom: -0.6ex;
 }
 
 .poke43-key-flash4 .poke43-key-hint4 {
@@ -251,8 +255,8 @@
 .poke43-key-flash6 {
   position: relative;
   z-index: 1;
-  bottom: -0.6ex;
   left: -0.6ex;
+  bottom: -0.6ex;
 }
 
 .poke43-key-flash6 .poke43-key-hint6 {
@@ -274,8 +278,8 @@
 .poke43-key-flash8 {
   position: relative;
   z-index: 1;
-  top: -0.6ex;
   left: -0.6ex;
+  top: -0.6ex;
 }
 
 .poke43-key-flash8 .poke43-key-hint8 {

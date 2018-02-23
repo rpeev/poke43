@@ -19,9 +19,7 @@ class Poke {
     this._el.appendChild(this._elEditor);
     this._el.appendChild(this._elKeyboard);
 
-    this._editor._hammer.on('tap', ev => {
-      this._keyboard.show();
-    });
+    this._editor._hammer.on('tap', ev => this._keyboard.show());
   }
 }
 
@@ -280,14 +278,14 @@ class EditorView {
 
   get _lineHTML() {
     return `\
-<span class="poke43-line-part"></span>`;
+<span class="poke43-line-part">\u200b</span>`;
   }
 
   get _caretLineHTML() {
     return `\
-<span class="poke43-line-part poke43-line-part1"></span>\
+<span class="poke43-line-part poke43-line-part1">\u200b</span>\
 <span class="poke43-line-part poke43-line-caret poke43-blink-smooth">\u200b</span>\
-<span class="poke43-line-part poke43-line-part2"></span>`;
+<span class="poke43-line-part poke43-line-part2">\u200b</span>`;
   }
 
   insertLineBefore(iLine) {
@@ -324,8 +322,9 @@ class EditorView {
     let line = this._model.line(iLine),
       elLine = this._el.children[iLine];
 
+    elLine.classList.remove('poke43-line-active');
     elLine.innerHTML = this._lineHTML;
-    elLine.children[0].textContent = line;
+    elLine.children[0].textContent = line || '\u200b';
 
     return this;
   }
@@ -344,9 +343,10 @@ class EditorView {
     }
     this._renderedCaretLineIndex = iLine;
 
+    elLine.classList.add('poke43-line-active');
     elLine.innerHTML = this._caretLineHTML;
-    elLine.children[0].textContent = part1;
-    elLine.children[2].textContent = part2;
+    elLine.children[0].textContent = part1 || '\u200b';
+    elLine.children[2].textContent = part2 || '\u200b';
 
     return this;
   }
@@ -371,7 +371,7 @@ class EditorView {
       throw RangeError(`Attempting to update rendered caret line at index ${iLine} like regular line`);
     }
 
-    elLine.children[0].textContent = line;
+    elLine.children[0].textContent = line || '\u200b';
 
     return this;
   }
@@ -386,8 +386,8 @@ class EditorView {
       throw RangeError(`Attempting to update rendered regular line at index ${iLine} like caret line (at index ${renderedCaretLineIndex})`);
     }
 
-    elLine.children[0].textContent = part1;
-    elLine.children[2].textContent = part2;
+    elLine.children[0].textContent = part1 || '\u200b';
+    elLine.children[2].textContent = part2 || '\u200b';
 
     return this;
   }
@@ -417,6 +417,7 @@ class Editor {
     });
 
     this._view.renderFully();
+    this._hammer.on('tap', ev => this._handleTap(ev));
   }
 
   get content() {
@@ -426,6 +427,44 @@ class Editor {
   set content(text) {
     this._model.content = text;
     this._view.renderFully();
+  }
+
+  _handleTap(ev) {
+    let lineHeight = this._el.scrollHeight / this._el.children.length,
+      editorRect = this._el.getBoundingClientRect(),
+      editorScroll = {
+        left: this._el.scrollLeft,
+        top: this._el.scrollTop
+      },
+      editorTouch = {
+        x: ev.pointers[0].clientX - editorRect.left,
+        y: ev.pointers[0].clientY - editorRect.top
+      },
+      bufferTouch = {
+        x: editorScroll.left + editorTouch.x,
+        y: editorScroll.top + editorTouch.y
+      },
+      iLine = Math.floor(bufferTouch.y / lineHeight),
+      iColumn = this._model.line(iLine).length,
+      elLine = this._el.children[iLine];
+
+    for (let i = 0, len = elLine.children.length; i < len; i++) {
+      let elPart = elLine.children[i],
+        text = elPart.textContent;
+
+      if (text.length > 1) {
+        let partRect = elPart.getBoundingClientRect(),
+          charWidth = partRect.width / text.length;
+
+        // TODO: Deal with non monospace fonts?
+        iColumn = Math.min(Math.floor(bufferTouch.x / charWidth), iColumn);
+
+        break;
+      }
+    }
+
+    this._model.moveCaret(iLine, iColumn);
+    this._view.renderCaretLine();
   }
 
   _handleMoveBackwardAtSOL() {
