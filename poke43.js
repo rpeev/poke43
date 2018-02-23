@@ -429,23 +429,45 @@ class Editor {
     this._view.renderFully();
   }
 
-  _handleTap(ev) {
-    let lineHeight = this._el.scrollHeight / this._el.children.length,
-      editorRect = this._el.getBoundingClientRect(),
-      editorScroll = {
-        left: this._el.scrollLeft,
-        top: this._el.scrollTop
-      },
-      editorTouch = {
-        x: ev.pointers[0].clientX - editorRect.left,
-        y: ev.pointers[0].clientY - editorRect.top
-      },
-      bufferTouch = {
-        x: editorScroll.left + editorTouch.x,
-        y: editorScroll.top + editorTouch.y
-      },
-      iLine = Math.floor(bufferTouch.y / lineHeight),
-      iColumn = this._model.line(iLine).length,
+  get _lineHeight() {
+    return this._el.scrollHeight / this._el.children.length;
+  }
+
+  get _editorRect() {
+    return this._el.getBoundingClientRect();
+  }
+
+  get _editorScrollPos() {
+    return {
+      left: this._el.scrollLeft,
+      top: this._el.scrollTop
+    };
+  }
+
+  _editorTouchCoords(ev, iPointer = 0) {
+    let editorRect = this._editorRect;
+
+    return {
+      x: ev.pointers[iPointer].clientX - editorRect.left,
+      y: ev.pointers[iPointer].clientY - editorRect.top
+    };
+  }
+
+  _bufferTouchCoords(editorTouchCoords) {
+    let editorScrollPos = this._editorScrollPos;
+
+    return {
+      x: editorScrollPos.left + editorTouchCoords.x,
+      y: editorScrollPos.top + editorTouchCoords.y
+    };
+  }
+
+  _lineIndex(bufferTouchCoords) {
+    return Math.floor(bufferTouchCoords.y / this._lineHeight);
+  }
+
+  _columnIndex(bufferTouchCoords, iLine) {
+    let iColumn = this._model.line(iLine).length,
       elLine = this._el.children[iLine];
 
     for (let i = 0, len = elLine.children.length; i < len; i++) {
@@ -457,11 +479,20 @@ class Editor {
           charWidth = partRect.width / text.length;
 
         // TODO: Deal with non monospace fonts?
-        iColumn = Math.min(Math.floor(bufferTouch.x / charWidth), iColumn);
+        iColumn = Math.min(Math.floor(bufferTouchCoords.x / charWidth), iColumn);
 
         break;
       }
     }
+
+    return iColumn;
+  }
+
+  _handleTap(ev) {
+    let editorTouchCoords = this._editorTouchCoords(ev),
+      bufferTouchCoords = this._bufferTouchCoords(editorTouchCoords),
+      iLine = this._lineIndex(bufferTouchCoords),
+      iColumn = this._columnIndex(bufferTouchCoords, iLine);
 
     this._model.moveCaret(iLine, iColumn);
     this._view.renderCaretLine();
