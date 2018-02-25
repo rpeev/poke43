@@ -295,25 +295,25 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-    describe('#get caretIsAtSOB()', () => {
-      it('should tell if the caret is at SOB', () => {
+    describe('#get caretIsAtStart()', () => {
+      it('should tell if the caret is at start', () => {
         let model = new poke43.EditorModel(sampleText);
 
-        assert.isTrue(model.caretIsAtSOB);
+        assert.isTrue(model.caretIsAtStart);
 
         model.moveCaret(1);
-        assert.isFalse(model.caretIsAtSOB);
+        assert.isFalse(model.caretIsAtStart);
       });
     });
 
-    describe('#get caretIsAtEOB()', () => {
-      it('should tell if the caret is at EOB', () => {
+    describe('#get caretIsAtEnd()', () => {
+      it('should tell if the caret is at end', () => {
         let model = new poke43.EditorModel(sampleText);
 
-        assert.isFalse(model.caretIsAtEOB);
+        assert.isFalse(model.caretIsAtEnd);
 
         model.moveCaret(5, 4);
-        assert.isTrue(model.caretIsAtEOB);
+        assert.isTrue(model.caretIsAtEnd);
       });
     });
 
@@ -401,22 +401,22 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-    describe('#moveToSOB()', () => {
-      it('should move the caret to SOB', () => {
+    describe('#moveToStart()', () => {
+      it('should move the caret to start', () => {
         let model = new poke43.EditorModel(sampleText);
 
         model.moveCaret(3);
 
-        model.moveToSOB();
+        model.moveToStart();
         assert.deepEqual(model.caret, {iLine: 0, iColumn: 0});
       });
     });
 
-    describe('#moveToEOB()', () => {
-      it('should move the caret to EOB', () => {
+    describe('#moveToEnd()', () => {
+      it('should move the caret to end', () => {
         let model = new poke43.EditorModel(sampleText);
 
-        model.moveToEOB();
+        model.moveToEnd();
         assert.deepEqual(model.caret, {iLine: 5, iColumn: 4});
       });
     });
@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', function () {
           'quux'
         ]);
 
-        model.moveToEOB();
+        model.moveToEnd();
         model.insertLineAfterCaretLine('inserted 2');
         assert.deepEqual(model.lines, [
           '',
