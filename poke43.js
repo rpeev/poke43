@@ -1561,21 +1561,27 @@ class Key {
     this._dispatchSwipe = this[props.dispatchSwipe || '_dispatchSwipe4cross'];
     this._renderHints = this[props.renderHints || '_renderHints4cross'];
     this._flashDuration = Number(props.flashDuration || 100);
-    this._hammer = new Hammer(this._el);
+    this._hammer = new Hammer.Manager(this._el);
 
     this._el.classList.add('poke43-key');
 
-    this._hammer.
-      get('swipe').
-      set({direction: Hammer.DIRECTION_ALL});
+    this._hammer.add(new Hammer.Tap());
+    this._hammer.add(new Hammer.Swipe({
+      direction: Hammer.DIRECTION_ALL,
+      treshold: 2,
+      velocity: 0.05
+    }));
 
-    this._hammer.
-      on('tap', ev => {
-        ev.preventDefault(); // Prevent zoom on double-tap
+    this._hammer.on('tap', ev => {
+      ev.preventDefault(); // Prevent zoom on double-tap
 
-        this.onCommand(ev);
-      }).
-      on('swipe', ev => this._dispatchSwipe(ev.angle).call(this, ev));
+      this.onCommand(ev);
+    });
+    this._hammer.on('swipe', ev => {
+      let handler = this._dispatchSwipe(ev.angle);
+
+      handler.call(this, ev);
+    });
   }
 
   _dispatchSwipe4cross(angle) {
