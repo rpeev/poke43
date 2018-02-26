@@ -1,0 +1,106 @@
+/*
+  Poke43 - Touch based browser edit components
+
+  Copyright (c) 2018 Radoslav Peev <rpeev@ymail.com> (MIT License)
+*/
+
+.poke43-editor {
+  border-color: #333333;
+  background: black;
+  color: steelblue;
+}
+
+.poke43-editor-editing {
+  border-color: gray;
+  background: black;
+  color: #89bdff;
+}
+
+.poke43-line-caret {
+  border-right: 3px solid orange;
+}
+
+.poke43-key {
+  background: black;
+  color: #999999;
+}
+
+.poke43-key-keyboard {
+  border-color: steelblue !important;
+}
+
+.poke43-key-character td {
+  color: #999999;
+}
+
+.poke43-key-symbol {
+  background: #101010;
+}
+
+.poke43-key-symbol td {
+  color: #dddddd;
+}
+
+.poke43-key-custom {
+  border-color: orange;
+}
+
+.poke43-key-custom td {
+  color: #999999;
+}
+
+.poke43-key-move {
+  border-color: green !important;
+}
+
+.poke43-key-delete {
+  border-color: maroon !important;
+}
+
+.poke43-key-keyboard .poke43-key-hint0,
+.poke43-key-editor .poke43-key-hint0,
+.poke43-key-character .poke43-key-hint0,
+.poke43-key-symbol .poke43-key-hint0,
+.poke43-key-custom .poke43-key-hint0 {
+  color: #cccccc;
+}
+
+.poke43-key-flash-no-action {
+  border: 2px solid red !important;
+}
+
+.poke43-key-flash0 .poke43-key-hint0 {
+  color: white !important;
+}
+
+.poke43-key-flash1 .poke43-key-hint1 {
+  color: white !important;
+}
+
+.poke43-key-flash2 .poke43-key-hint2 {
+  color: white !important;
+}
+
+.poke43-key-flash3 .poke43-key-hint3 {
+  color: white !important;
+}
+
+.poke43-key-flash4 .poke43-key-hint4 {
+  color: white !important;
+}
+
+.poke43-key-flash5 .poke43-key-hint5 {
+  color: white !important;
+}
+
+.poke43-key-flash6 .poke43-key-hint6 {
+  color: white !important;
+}
+
+.poke43-key-flash7 .poke43-key-hint7 {
+  color: white !important;
+}
+
+.poke43-key-flash8 .poke43-key-hint8 {
+  color: white !important;
+}
