@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.14.0
+
+* Add dark theme
+* Make sure the caret stays within visible editor area when editing
+* Make swipe over the keys a bit more sensitive
+
 ## 1.13.0
 
 * Fix caret line rendering issue (the part after the caret was slightly displaced and blurry)
