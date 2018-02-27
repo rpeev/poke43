@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 
-<html lang="en" style="font-family: Avenir, sans-serif;">
+<html lang="en" class="light sans-serif">
   <head>
     <meta charset="utf-8" />
 
-    <title>Poke43 - larger file example</title>
+    <title>Poke43 - larger example</title>
 
     <link rel="stylesheet" href="https://unpkg.com/peek42@latest/monofur.css" />
     <link rel="stylesheet" href="https://unpkg.com/peek42@latest/peek42.css" />
     <link rel="stylesheet" href="https://unpkg.com/poke43@latest/poke43.css" />
+    <link rel="stylesheet" id="darkCss" />
     <script src="https://unpkg.com/apivis@latest/apivis.js"></script>
     <script src="https://unpkg.com/peek42@latest/peek42.js"></script>
     <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
@@ -18,18 +19,29 @@
     <script src="https://unpkg.com/poke43@latest/poke43.js"></script>
 
     <style>
+.light {
+  background: #f5f5f5;
+  color: black;
+}
+
+.dark {
+  background: black;
+  color: #65b042;
+}
+
+.sans-serif {
+  font-family: Avenir, sans-serif;
+}
+
 #poke .poke43-editor {
   height: 70vh;
+  font-family: Monofur, monospace;
   font-size: 1.2em;
 }
 
-#poke .poke43-editor-editing {
-  box-shadow: 0 0 1ex gray;
-}
-
 #poke .poke43-keyboard {
-  top: 50vh;
   right: 4em;
+  top: 50vh;
   opacity: 1;
 }
     </style>
@@ -81,8 +93,28 @@ async function loadFile(poke, path) {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-  let poke = new poke43.Poke(document.getElementById('poke')),
+  let darkCss = document.getElementById('darkCss'),
+    darkCssHref = 'https://unpkg.com/poke43@latest/poke43-dark.css',
+    switchTheme = document.getElementById('switchTheme'),
+    poke = new poke43.Poke(document.getElementById('poke')),
     path = 'https://unpkg.com/poke43@latest/poke43.js';
+
+  switchTheme.addEventListener('click', function () {
+    let html = document.documentElement,
+      pageClasses = html.classList;
+
+    if (pageClasses.contains('light')) {
+      pageClasses.remove('light');
+      pageClasses.add('dark');
+      darkCss.setAttribute('href', darkCssHref);
+      switchTheme.textContent = 'Light Theme';
+    } else {
+      pageClasses.remove('dark');
+      pageClasses.add('light');
+      darkCss.removeAttribute('href');
+      switchTheme.textContent = 'Dark Theme';
+    }
+  });
 
   await loadFile(poke, path);
 });
@@ -90,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   </head>
 
   <body>
-<h1 id="about">Poke43 - larger file example [<a href="./index.html">Index</a>]</h1>
+<h1 id="about">Poke43 - larger example [<a href="./index.html">Index</a>] <button id="switchTheme">Dark Theme</button></h1>
 
 <div id="poke"></div>
   </body>
