@@ -348,6 +348,8 @@ class EditorView {
     elLine.children[0].textContent = part1 || '\u200b';
     elLine.children[2].textContent = part2 || '\u200b';
 
+    this.revealCaret();
+
     return this;
   }
 
@@ -389,6 +391,8 @@ class EditorView {
     elLine.children[0].textContent = part1 || '\u200b';
     elLine.children[2].textContent = part2 || '\u200b';
 
+    this.revealCaret();
+
     return this;
   }
 
@@ -397,6 +401,8 @@ class EditorView {
       elLine = this._el.children[iLine];
 
     elLine.children[1].style.visibility = 'hidden';
+
+    return this;
   }
 
   showCaret() {
@@ -404,10 +410,45 @@ class EditorView {
       elLine = this._el.children[iLine];
 
     elLine.children[1].style.visibility = 'visible';
+
+    return this;
+  }
+
+  revealCaret() {
+    let caretRect = this.caretRect,
+      rect = this.rect,
+      leftDelta = (caretRect.left - 2) - rect.left,
+      topDelta = (caretRect.top - 3) - rect.top,
+      rightDelta = rect.right - (caretRect.right + 2),
+      bottomDelta = rect.bottom - (caretRect.bottom + 3);
+
+    if (leftDelta < 0) {
+      this._el.scrollLeft += leftDelta;
+    }
+
+    if (topDelta < 0) {
+      this._el.scrollTop += topDelta;
+    }
+
+    if (rightDelta < 0) {
+      this._el.scrollLeft -= rightDelta;
+    }
+
+    if (bottomDelta < 0) {
+      this._el.scrollTop -= bottomDelta;
+    }
+
+    return this;
   }
 
   get lineHeight() {
     return this._el.scrollHeight / this._el.children.length;
+  }
+
+  get caretRect() {
+    let elCaret = this._el.children[this._model.caret.iLine].children[1];
+
+    return elCaret.getBoundingClientRect();
   }
 
   get rect() {
