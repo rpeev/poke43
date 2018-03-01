@@ -8,8 +8,9 @@
 
     <link rel="stylesheet" href="https://unpkg.com/peek42@latest/monofur.css" />
     <link rel="stylesheet" href="https://unpkg.com/peek42@latest/peek42.css" />
+    <link rel="stylesheet" id="peek42DarkCss" />
     <link rel="stylesheet" href="https://unpkg.com/poke43@latest/poke43.css" />
-    <link rel="stylesheet" id="darkCss" />
+    <link rel="stylesheet" id="poke43DarkCss" />
     <script src="https://unpkg.com/apivis@latest/apivis.js"></script>
     <script src="https://unpkg.com/peek42@latest/peek42.js"></script>
     <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
@@ -93,8 +94,10 @@ async function loadFile(poke, path) {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-  let darkCss = document.getElementById('darkCss'),
-    darkCssHref = 'https://unpkg.com/poke43@latest/poke43-dark.css',
+  let peek42DarkCss = document.getElementById('peek42DarkCss'),
+    peek42DarkCssHref = 'https://unpkg.com/peek42@latest/peek42-dark.css',
+    poke43DarkCss = document.getElementById('poke43DarkCss'),
+    poke43DarkCssHref = 'https://unpkg.com/poke43@latest/poke43-dark.css',
     switchTheme = document.getElementById('switchTheme'),
     poke = new poke43.Poke(document.getElementById('poke')),
     path = 'https://unpkg.com/poke43@latest/poke43.js';
@@ -106,12 +109,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (pageClasses.contains('light')) {
       pageClasses.remove('light');
       pageClasses.add('dark');
-      darkCss.setAttribute('href', darkCssHref);
+      peek42DarkCss.setAttribute('href', peek42DarkCssHref);
+      poke43DarkCss.setAttribute('href', poke43DarkCssHref);
       switchTheme.textContent = 'Light Theme';
     } else {
       pageClasses.remove('dark');
       pageClasses.add('light');
-      darkCss.removeAttribute('href');
+      peek42DarkCss.removeAttribute('href');
+      poke43DarkCss.removeAttribute('href');
       switchTheme.textContent = 'Dark Theme';
     }
   });
