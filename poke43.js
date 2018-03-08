@@ -442,7 +442,7 @@ class EditorView {
   }
 
   get lineHeight() {
-    return this._el.scrollHeight / this._el.children.length;
+    return this._el.children[0].getBoundingClientRect().height;
   }
 
   get caretRect() {
@@ -482,7 +482,10 @@ class EditorView {
 
   // Turns out iColumn calculation works pretty good for non monospaced fonts as well
   modelIndices(scrollTouchCoords) {
-    let iLine = Math.floor(scrollTouchCoords.y / this.lineHeight),
+    let iLine = Math.min(
+        Math.floor(scrollTouchCoords.y / this.lineHeight),
+        this._model.lines.length - 1
+      ),
       iColumn = this._model.line(iLine).length,
       elLine = this._el.children[iLine];
 
@@ -512,12 +515,41 @@ class Editor {
     this._el = el;
     this._model = new poke43.EditorModel(this._el.textContent);
     this._view = new poke43.EditorView(this._el, this._model);
-    this._hammer = new Hammer(this._el, {
+    this._hammer = new Hammer.Manager(this._el, {
       touchAction: 'auto'
+    });
+    this._tap = new Hammer.Tap();
+    this._tap2 = new Hammer.Tap({
+      event: 'tap2',
+      taps: 2,
+      interval: 500
+    });
+    this._tap3 = new Hammer.Tap({
+      event: 'tap3',
+      taps: 3,
+      interval: 500
     });
 
     this._view.renderFully();
-    this._hammer.on('tap', ev => this._handleTap(ev));
+
+    this._tap2.recognizeWith(this._tap);
+    this._tap3.recognizeWith(this._tap);
+
+    this._hammer.add(this._tap);
+    this._hammer.add(this._tap2);
+    this._hammer.add(this._tap3);
+
+    this._hammer.on('tap', ev => {
+      ev.preventDefault(); // Prevent zoom on double-tap
+
+      this._handleTap(ev);
+    });
+    this._hammer.on('tap2', ev => {
+      this._handleTap2(ev);
+    });
+    this._hammer.on('tap3', ev => {
+      this._handleTap3(ev);
+    });
   }
 
   get content() {
@@ -536,6 +568,14 @@ class Editor {
 
     this._model.moveCaret(newCaret.iLine, newCaret.iColumn);
     this._view.renderCaretLine();
+  }
+
+  _handleTap2(ev) {
+    
+  }
+
+  _handleTap3(ev) {
+    
   }
 
   _handleMoveBackwardAtSOL() {
@@ -1020,7 +1060,7 @@ class EditorKeyboard {
     this._symBlockLayout = 'Poke43';
     this._custBlockActive = false;
     this._langBlockLayout = 'EnUsQwerty';
-    this._hammer = new Hammer(this._el);
+    this._hammer = new Hammer.Manager(this._el);
 
     this._el.classList.add('poke43-keyboard');
 
@@ -1031,15 +1071,19 @@ class EditorKeyboard {
       this._keys = this._getKeys();
     }
 
-    this._hammer.
-      get('swipe').
-      set({direction: Hammer.DIRECTION_ALL});
+    this._hammer.add(new Hammer.Tap());
+    this._hammer.add(new Hammer.Swipe({
+      direction: Hammer.DIRECTION_ALL,
+      treshold: 2,
+      velocity: 0.05
+    }));
 
-    this._hammer.
-      on('tap', ev => {
-        ev.preventDefault(); // Prevent zoom on double-tap
-      }).
-      on('swipe', ev => {});
+    this._hammer.on('tap', ev => {
+      ev.preventDefault(); // Prevent zoom on double-tap
+    });
+    this._hammer.on('swipe', ev => {
+
+    });
 
     this._symBlockActive && this[`_symBlock${this._symBlockLayout}Show`]();
     this._custBlockActive && this._custBlockShow();
