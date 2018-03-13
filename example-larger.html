@@ -99,6 +99,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     poke43DarkCss = document.getElementById('poke43DarkCss'),
     poke43DarkCssHref = 'https://unpkg.com/poke43@latest/poke43-dark.css',
     switchTheme = document.getElementById('switchTheme'),
+    loadExample = document.getElementById('loadExample'),
+    clearEditor = document.getElementById('clearEditor'),
     poke = new poke43.Poke(document.getElementById('poke')),
     path = 'https://unpkg.com/poke43@latest/poke43.js';
 
@@ -121,13 +123,25 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   });
 
+  loadExample.addEventListener('click', async function () {
+    await loadFile(poke, path);
+  });
+
+  clearEditor.addEventListener('click', function () {
+    poke._editor.content = '';
+  });
+
   await loadFile(poke, path);
 });
     </script>
   </head>
 
   <body>
-<h1 id="about">Poke43 - larger example [<a href="./index.html">Index</a>] <button id="switchTheme">Dark Theme</button></h1>
+<h1 id="about">Poke43 - larger example [<a href="./index.html">Index</a>]
+  <button id="switchTheme">Dark Theme</button>
+  <button id="loadExample">Load Example</button>
+  <button id="clearEditor">Clear Editor</button>
+</h1>
 
 <div id="poke"></div>
   </body>
