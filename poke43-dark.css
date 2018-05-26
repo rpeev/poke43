@@ -20,6 +20,10 @@
   border-right: 3px solid orange;
 }
 
+.poke43-keyboard-row span {
+  box-shadow: none !important;
+}
+
 .poke43-key {
   background: black;
   color: #999999;
