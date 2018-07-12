@@ -6,13 +6,13 @@
 
     <title>Poke43 - larger example</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/monofur.css" />
-    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/peek42.css" />
+    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/dist/peek42.css" />
     <link rel="stylesheet" id="peek42DarkCss" />
     <link rel="stylesheet" href="https://unpkg.com/poke43@latest/poke43.css" />
     <link rel="stylesheet" id="poke43DarkCss" />
-    <script src="https://unpkg.com/apivis@latest/apivis.js"></script>
-    <script src="https://unpkg.com/peek42@latest/peek42.js"></script>
+
+    <script src="https://unpkg.com/apivis@latest/dist/apivis.browser.js"></script>
+    <script src="https://unpkg.com/peek42@latest/dist/peek42.browser.js"></script>
     <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
     <script src="https://unpkg.com/@emmetio/expand-abbreviation@latest/dist/expand-full.js"></script>
     <script src="https://unpkg.com/poke43@latest/emmet-extract-abbreviation.js"></script>
@@ -27,6 +27,10 @@
 
 .dark {
   background: black;
+  color: #bdb76b;
+}
+
+.dark a {
   color: #65b042;
 }
 
@@ -47,12 +51,15 @@
 }
     </style>
 
-    <script>
-//Peek42.noop();
+    <script>(() => { 'use strict';
+const {p, pp} = peek42.use(apivis);
+
+// Conform to the old peek42 interface until poke43 gets updated
+Object.assign(window, {Peek42: {}, p: peek42.p});
 
 function pathParts(path) {
-  let href = new URL(path).href,
-    iLastSlash = href.lastIndexOf('/');
+  let href = new URL(path).href;
+  let iLastSlash = href.lastIndexOf('/');
 
   return {
     name: href.slice(iLastSlash + 1),
@@ -69,8 +76,8 @@ function loadingMessage(path) {
 function errorMessage(err, path) {
   let message = (err instanceof TypeError) ?
       'Network error (forbidden cross-domain request?)' :
-      String(err),
-    {name, location} = pathParts(path);
+      String(err);
+  let {name, location} = pathParts(path);
 
   return `${message}\n\n${name || 'index'}\nat ${location}`;
 }
@@ -93,26 +100,26 @@ async function loadFile(poke, path) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', async function () {
-  let peek42DarkCss = document.getElementById('peek42DarkCss'),
-    peek42DarkCssHref = 'https://unpkg.com/peek42@latest/peek42-dark.css',
-    poke43DarkCss = document.getElementById('poke43DarkCss'),
-    poke43DarkCssHref = 'https://unpkg.com/poke43@latest/poke43-dark.css',
-    switchTheme = document.getElementById('switchTheme'),
-    loadExample = document.getElementById('loadExample'),
-    clearEditor = document.getElementById('clearEditor'),
-    poke = new poke43.Poke(document.getElementById('poke')),
-    path = 'https://unpkg.com/poke43@latest/poke43.js';
+document.addEventListener('DOMContentLoaded', async () => {
+  let peek42DarkCss = document.getElementById('peek42DarkCss');
+  let peek42DarkCssUrl = 'https://unpkg.com/peek42@latest/dist/peek42-dark.css';
+  let poke43DarkCss = document.getElementById('poke43DarkCss');
+  let poke43DarkCssUrl = 'https://unpkg.com/poke43@latest/poke43-dark.css';
+  let switchTheme = document.getElementById('switchTheme');
+  let loadExample = document.getElementById('loadExample');
+  let clearEditor = document.getElementById('clearEditor');
+  let poke = new poke43.Poke(document.getElementById('poke'));
+  let path = 'https://unpkg.com/poke43@latest/poke43.js';
 
-  switchTheme.addEventListener('click', function () {
-    let html = document.documentElement,
-      pageClasses = html.classList;
+  switchTheme.addEventListener('click', () => {
+    let html = document.documentElement;
+    let pageClasses = html.classList;
 
     if (pageClasses.contains('light')) {
       pageClasses.remove('light');
       pageClasses.add('dark');
-      peek42DarkCss.setAttribute('href', peek42DarkCssHref);
-      poke43DarkCss.setAttribute('href', poke43DarkCssHref);
+      peek42DarkCss.setAttribute('href', peek42DarkCssUrl);
+      poke43DarkCss.setAttribute('href', poke43DarkCssUrl);
       switchTheme.textContent = 'Light Theme';
     } else {
       pageClasses.remove('dark');
@@ -123,17 +130,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   });
 
-  loadExample.addEventListener('click', async function () {
+  loadExample.addEventListener('click', async () => {
     await loadFile(poke, path);
   });
 
-  clearEditor.addEventListener('click', function () {
+  clearEditor.addEventListener('click', () => {
     poke._editor.content = '';
   });
 
   await loadFile(poke, path);
 });
-    </script>
+    })();</script>
   </head>
 
   <body>
@@ -143,6 +150,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   <button id="clearEditor">Clear Editor</button>
 </h1>
 
-<div id="poke"></div>
+<div id="poke">
+</div>
   </body>
 </html>
