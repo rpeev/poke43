@@ -37,8 +37,8 @@
 }
 
 #poke .poke43-keyboard {
-  right: 4em;
   top: 50vh;
+  right: 4em;
   opacity: 1;
 }
     </style>
@@ -76,8 +76,8 @@ function loadingMessage(path) {
 
 function errorMessage(err, path) {
   let message = (err instanceof TypeError) ?
-      'Network error (forbidden cross-domain request?)' :
-      String(err);
+    'Network error (cross-domain request?)' :
+    String(err);
   let {name, location} = pathParts(path);
 
   return `${message}\n\n${name || 'index'}\nat ${location}`;
@@ -95,7 +95,9 @@ async function loadFile(poke, path) {
   try {
     let res = await fetch(path);
 
-    poke._editor.content = (res.ok) ? await res.text() : statusErrorMessage(res);
+    poke._editor.content = (res.ok) ?
+      await res.text() :
+      statusErrorMessage(res);
   } catch (err) {
     poke._editor.content = errorMessage(err, path);
   }
@@ -107,10 +109,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let poke43DarkCss = document.getElementById('poke43DarkCss');
   let poke43DarkCssUrl = 'https://unpkg.com/poke43@latest/poke43-dark.css';
   let switchTheme = document.getElementById('switchTheme');
-  let loadExample = document.getElementById('loadExample');
+  let loadContent = document.getElementById('loadContent');
   let clearEditor = document.getElementById('clearEditor');
-  let poke = new poke43.Poke(document.getElementById('poke'));
-  let path = 'https://unpkg.com/poke43@latest/poke43.js';
+  let poke = new Poke(document.getElementById('poke'));
+  let contentPath = 'https://unpkg.com/poke43@latest/poke43.js';
 
   switchTheme.addEventListener('click', () => {
     let html = document.documentElement;
@@ -131,15 +133,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  loadExample.addEventListener('click', async () => {
-    await loadFile(poke, path);
+  loadContent.addEventListener('click', async () => {
+    await loadFile(poke, contentPath);
   });
 
   clearEditor.addEventListener('click', () => {
     poke._editor.content = '';
   });
 
-  await loadFile(poke, path);
+  await loadFile(poke, contentPath);
 });
     })();</script>
   </head>
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   <body>
 <h1 id="about">Poke43 - larger example [<a href="./index.html">Index</a>]
   <button id="switchTheme">Dark Theme</button>
-  <button id="loadExample">Load Example</button>
+  <button id="loadContent">Load Content</button>
   <button id="clearEditor">Clear Editor</button>
 </h1>
 
