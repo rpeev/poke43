@@ -6,12 +6,12 @@
 
     <title>poke43.EditorModel tests</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/monofur.css" />
-    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/peek42.css" />
+    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/dist/peek42.css" />
     <link rel="stylesheet" href="https://unpkg.com/mocha@latest/mocha.css" />
     <link rel="stylesheet" href="./poke43.css" />
-    <script src="https://unpkg.com/apivis@latest/apivis.js"></script>
-    <script src="https://unpkg.com/peek42@latest/peek42.js"></script>
+
+    <script src="https://unpkg.com/apivis@latest/dist/apivis.browser.js"></script>
+    <script src="https://unpkg.com/peek42@latest/dist/peek42.browser.js"></script>
     <script src="https://unpkg.com/mocha@latest/mocha.js"></script>
     <script src="https://unpkg.com/chai@latest/chai.js"></script>
     <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
@@ -23,11 +23,10 @@
     <style>
     </style>
 
-    <script>
-//Peek42.noop();
-
-document.addEventListener('DOMContentLoaded', function () {
-  let assert = chai.assert;
+    <script>(() => { 'use strict;'
+document.addEventListener('DOMContentLoaded', () => {
+  const {assert} = chai;
+  const {EditorModel} = poke43;
 
   mocha.setup('bdd');
 
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('constructor(text = \'\')', () => {
       it('should create model containing one empty line and initial position caret by default', () => {
-        let model = new poke43.EditorModel();
+        let model = new EditorModel();
 
         assert.deepEqual(model.lines, [
           ''
@@ -45,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       it('should create model containing lines split from text and initial position caret', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.deepEqual(model.lines, [
           '',
@@ -61,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get content()', () => {
       it('should return model lines joined as text', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.strictEqual(model.content, sampleText);
       });
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#set content(text)', () => {
       it('should set model lines split from text and reset caret position', () => {
-        let model = new poke43.EditorModel('\n ');
+        let model = new EditorModel('\n ');
 
         model.moveCaret(1, 1);
         assert.deepEqual(model.caret, {iLine: 1, iColumn: 1});
@@ -89,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get lines()', () => {
       it('should return all lines', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.deepEqual(model.lines, [
           '',
@@ -104,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#line(iLine)', () => {
       it('should return the line at iLine throwing RangeError when index is out of bounds', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.throws(() => model.line(-1), RangeError, 'Line index -1 out of bounds [0, 5]');
         assert.throws(() => model.line(6), RangeError, 'Line index 6 out of bounds [0, 5]');
@@ -114,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#lineParts(iLine, iColumn)', () => {
       it('should return the line parts around iColumn at iLine throwing RangeError when either index is out of bounds', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.throws(() => model.lineParts(-1, 0), RangeError, 'Line index -1 out of bounds [0, 5]');
         assert.throws(() => model.lineParts(6, 0), RangeError, 'Line index 6 out of bounds [0, 5]');
@@ -128,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#insertLineBefore(iLine, line)', () => {
       it('should insert line before iLine', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.insertLineBefore(0, 'inserted 1');
         assert.deepEqual(model.lines, [
@@ -170,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#insertLineAfter(iLine, line)', () => {
       it('should insert line after iLine', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.insertLineAfter(-1, 'inserted 1');
         assert.deepEqual(model.lines, [
@@ -212,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#removeLine(iLine)', () => {
       it('should remove the line at iLine', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.removeLine(2);
         assert.deepEqual(model.lines, [
@@ -227,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#updateLine(iLine, line)', () => {
       it('should update the line at iLine', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.updateLine(2, 'booo yaaa');
         assert.deepEqual(model.lines, [
@@ -243,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caret()', () => {
       it('should return the caret object', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.deepEqual(model.caret, {iLine: 0, iColumn: 0});
       });
@@ -251,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretIsAtFirstLine()', () => {
       it('should tell if the caret is at first line', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.isTrue(model.caretIsAtFirstLine);
 
@@ -262,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretIsAtLastLine()', () => {
       it('should tell if the caret is at last line', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.isFalse(model.caretIsAtLastLine);
 
@@ -273,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretIsAtSOL()', () => {
       it('should tell if the caret is at SOL', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(1);
         assert.isTrue(model.caretIsAtSOL);
@@ -285,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretIsAtEOL()', () => {
       it('should tell if the caret is at EOL', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(1, 3);
         assert.isTrue(model.caretIsAtEOL);
@@ -297,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretIsAtStart()', () => {
       it('should tell if the caret is at start', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.isTrue(model.caretIsAtStart);
 
@@ -308,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretIsAtEnd()', () => {
       it('should tell if the caret is at end', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.isFalse(model.caretIsAtEnd);
 
@@ -319,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveCaret(iLine, iColumn = 0)', () => {
       it('should move the caret throwing RangeError when either index is out of bounds', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         assert.throws(() => model.moveCaret(-1), RangeError, 'Line index -1 out of bounds [0, 5]');
         assert.throws(() => model.moveCaret(2, 8), RangeError, 'Column index 8 out of bounds [0, 7]');
@@ -331,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveBackward(columnDelta = 1)', () => {
       it('should move the caret backward', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2, 7);
 
@@ -345,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveForward(columnDelta = 1)', () => {
       it('should move the caret forward', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2);
 
@@ -359,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveToSOL()', () => {
       it('should move the caret to SOL', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2, 7);
 
@@ -370,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveToEOL()', () => {
       it('should move the caret to EOL', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2);
 
@@ -381,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveToPrevEOL()', () => {
       it('should move the caret to prev EOL', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(3);
 
@@ -392,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveToNextSOL()', () => {
       it('should move the caret to next SOL', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(1);
 
@@ -403,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveToStart()', () => {
       it('should move the caret to start', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(3);
 
@@ -414,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#moveToEnd()', () => {
       it('should move the caret to end', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveToEnd();
         assert.deepEqual(model.caret, {iLine: 5, iColumn: 4});
@@ -423,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#deleteBackward(columnDelta = 1)', () => {
       it('should delete backward and move the caret', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2, 7);
 
@@ -439,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#deleteForward(columnDelta = 1)', () => {
       it('should delete forward (the caret stays in place)', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2);
 
@@ -455,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretLine()', () => {
       it('should return the line under caret', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2);
         assert.strictEqual(model.caretLine, 'bar baz');
@@ -464,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#get caretLineParts()', () => {
       it('should return the line parts around caret', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.moveCaret(2, 3);
         assert.deepEqual(model.caretLineParts, ['bar', ' baz']);
@@ -473,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#insertLineAfterCaretLine(line)', () => {
       it('should insert line after the caret line', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.insertLineAfterCaretLine('inserted 1');
         assert.deepEqual(model.lines, [
@@ -503,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     describe('#updateCaretLine(line)', () => {
       it('should update the line under caret', () => {
-        let model = new poke43.EditorModel(sampleText);
+        let model = new EditorModel(sampleText);
 
         model.updateCaretLine('booo yaaa');
         assert.deepEqual(model.lines, [
@@ -520,12 +519,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   mocha.run();
 });
-    </script>
+    })();</script>
   </head>
 
   <body>
 <h1 id="about">poke43.EditorModel tests</h1>
 
-<div id="mocha"></div>
+<div id="mocha">
+</div>
   </body>
 </html>
