@@ -6,16 +6,8 @@
 
     <title>Poke43</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/monofur.css" />
-    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/peek42.css" />
+    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/dist/peek42.css" />
     <link rel="stylesheet" href="./poke43.css" />
-    <script src="https://unpkg.com/apivis@latest/apivis.js"></script>
-    <script src="https://unpkg.com/peek42@latest/peek42.js"></script>
-    <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
-    <script src="https://unpkg.com/@emmetio/expand-abbreviation@latest/dist/expand-full.js"></script>
-    <script src="./emmet-extract-abbreviation.js"></script>
-    <script src="./emmet-field-parser.js"></script>
-    <script src="./poke43.js"></script>
 
     <style>
 #poke .poke43-editor {
@@ -23,34 +15,31 @@
 }
     </style>
 
-    <script>
-//Peek42.noop();
+    <script src="https://unpkg.com/apivis@latest/dist/apivis.browser.js"></script>
+    <script src="https://unpkg.com/peek42@latest/dist/peek42.browser.js"></script>
+      <!-- Conform to the old peek42 interface until poke43 gets updated -->
+      <script>Object.assign(window, {
+        Peek42: {}
+      });</script>
+    <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
+    <script src="https://unpkg.com/@emmetio/expand-abbreviation@latest/dist/expand-full.js"></script>
+    <script src="./emmet-extract-abbreviation.js"></script>
+    <script src="./emmet-field-parser.js"></script>
+    <script src="./poke43.js"></script>
 
-document.addEventListener('DOMContentLoaded', function () {
-  let poke = new poke43.Poke(document.getElementById('poke'));
+    <script>(() => { 'use strict';
+const {Poke} = poke43;
+
+document.addEventListener('DOMContentLoaded', () => {
+  let poke = new Poke(document.getElementById('poke'));
 });
-    </script>
+    })();</script>
   </head>
 
   <body>
 <h1 id="about">Poke43</h1>
 
-<div id="poke"></div>
-
-<ul>
-  <li>tap - primary</li>
-  <li>swipe - secondary<br />(down green/red - space/enter)</li>
-  <li>swipe left/right green - move</li>
-  <li>swipe left/right red - delete</li>
-  <li>tap edit area - position caret</li>
-  <li>tap globe - switch languages</li>
-  <li>swipe up globe - toggle symbol row</li>
-  <li>swipe right globe - switch symbol row layouts</li>
-  <li>swipe up sparkles - hide keyboard (tap editor to show)</li>
-  <li>swipe right sparkles - expand emmet abbreviation</li>
-  <li>swipe down sparkles - execute editor content as JS</li>
-  <li>swipe left/right fatter border green/red - move/delete at word boundaries</li>
-  <li>swipe left/right <em>a</em> - move to line start/end</li>
-</ul>
+<div id="poke">
+</div>
   </body>
 </html>
