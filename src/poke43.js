@@ -1,18 +1,16 @@
-/*
-  Poke43 - Touch based browser edit components
-
-  Copyright (c) 2018 Radoslav Peev <rpeev@ymail.com> (MIT License)
-*/
-
-(function () {
+import {
+  name as LIB_NAME,
+  version as LIB_VERSION
+} from '../package.json';
+import './styles/poke43.scss';
 
 class Poke {
   constructor(el) {
     this._el = el;
     this._elEditor = document.createElement('div');
-    this._editor = new poke43.Editor(this._elEditor);
+    this._editor = new Editor(this._elEditor);
     this._elKeyboard = document.createElement('div');
-    this._keyboard = new poke43.EditorKeyboard(this._editor, this._elKeyboard);
+    this._keyboard = new EditorKeyboard(this._editor, this._elKeyboard);
 
     this._el.classList.add('poke43-poke');
     this._el.textContent = '';
@@ -513,8 +511,8 @@ class EditorView {
 class Editor {
   constructor(el) {
     this._el = el;
-    this._model = new poke43.EditorModel(this._el.textContent);
-    this._view = new poke43.EditorView(this._el, this._model);
+    this._model = new EditorModel(this._el.textContent);
+    this._view = new EditorView(this._el, this._model);
     this._hammer = new Hammer.Manager(this._el, {
       touchAction: 'auto'
     });
@@ -2059,27 +2057,30 @@ class EditorKeyCustom extends EditorKey {
   }
 }
 
-// exports
-window.poke43 = {
-  Poke: Poke,
-  EditorModel: EditorModel,
-  EditorView: EditorView,
-  Editor: Editor,
-  EditorKeyboard: EditorKeyboard,
-  Key: Key,
-  KeyboardKey: KeyboardKey,
-  EditorKey: EditorKey,
-  EditorKeyCharacter: EditorKeyCharacter,
-  EditorKeyCharacterSpaceMove: EditorKeyCharacterSpaceMove,
-  EditorKeyCharacterSpaceMoveWB: EditorKeyCharacterSpaceMoveWB,
-  EditorKeyCharacterEnterDelete: EditorKeyCharacterEnterDelete,
-  EditorKeyCharacterEnterDeleteWB: EditorKeyCharacterEnterDeleteWB,
-  EditorKeyCharSymSpaceMove: EditorKeyCharSymSpaceMove,
-  EditorKeyCharSymSpaceMoveWB: EditorKeyCharSymSpaceMoveWB,
-  EditorKeyCharSymEnterDelete: EditorKeyCharSymEnterDelete,
-  EditorKeyCharSymEnterDeleteWB: EditorKeyCharSymEnterDeleteWB,
-  EditorKeySymbol: EditorKeySymbol,
-  EditorKeyCustom: EditorKeyCustom
+const poke43 = {
+  get [Symbol.toStringTag]() {
+    return LIB_NAME;
+  },
+  version: LIB_VERSION,
+  Poke,
+  EditorModel,
+  EditorView,
+  Editor,
+  EditorKeyboard,
+  Key,
+  KeyboardKey,
+  EditorKey,
+  EditorKeyCharacter,
+  EditorKeyCharacterSpaceMove,
+  EditorKeyCharacterSpaceMoveWB,
+  EditorKeyCharacterEnterDelete,
+  EditorKeyCharacterEnterDeleteWB,
+  EditorKeyCharSymSpaceMove,
+  EditorKeyCharSymSpaceMoveWB,
+  EditorKeyCharSymEnterDelete,
+  EditorKeyCharSymEnterDeleteWB,
+  EditorKeySymbol,
+  EditorKeyCustom
 };
 
-})();
+export default poke43;

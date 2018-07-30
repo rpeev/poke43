@@ -7,7 +7,7 @@ import babel from 'rollup-plugin-babel';
 import pkg from './package.json';
 
 const pluginCopy = copy({
-  'src/browser/styles/poke43-dark.css': 'dist/poke43-dark.css'
+  'src/styles/poke43-dark.css': 'dist/poke43-dark.css'
 });
 const pluginHtml = html({
   
@@ -28,7 +28,7 @@ const pluginBabel = babel({
 });
 
 const config = [{
-  input: './src/index.browser.js',
+  input: './src/index.js',
   output: {
     format: 'umd',
     file: pkg.browser,
@@ -46,7 +46,7 @@ const config = [{
     include: 'src/**'
   }
 }, {
-  input: './src/index.browser.mjs',
+  input: './src/index.mjs',
   output: {
     format: 'es',
     file: pkg.module,
