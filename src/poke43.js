@@ -3,6 +3,10 @@ import {
   version as LIB_VERSION
 } from '../package.json';
 import './styles/poke43.scss';
+import emmetExtractAbbreviation from '@emmetio/extract-abbreviation';
+import emmetParseFields, {
+  createToken as emmetCreateToken
+} from '@emmetio/field-parser';
 
 class Poke {
   constructor(el) {
@@ -990,7 +994,7 @@ class Editor {
 
   expandAbbreviation() {
     let line = this._model.caretLine,
-      abbr = emmetExtractAbbreviation.extractAbbreviation(
+      abbr = emmetExtractAbbreviation(
         line,
         this._model.caret.iColumn,
         true
@@ -1001,7 +1005,7 @@ class Editor {
         part2 = line.slice(abbr.location + abbr.abbreviation.length),
         indent = this._model.getIndent(part1),
         expanded = emmet.expand(abbr.abbreviation, {
-          field: emmetFieldParser.createToken,
+          field: emmetCreateToken,
           profile: {
             indent: '  ',
             selfClosingStyle: 'xhtml'
@@ -1011,7 +1015,7 @@ class Editor {
           split('\n').
           map((l, i) => (i === 0) ? l : `${indent}${l}`).
           join('\n'),
-        {string, fields} = emmetFieldParser.parse(expanded1);
+        {string, fields} = emmetParseFields(expanded1);
 
       if (expanded1.match(/\n/)) {
         this._applyEdit({

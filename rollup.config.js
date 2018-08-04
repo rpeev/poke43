@@ -1,3 +1,5 @@
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import html from 'rollup-plugin-html';
 import sass from 'rollup-plugin-sass';
@@ -6,6 +8,12 @@ import babel from 'rollup-plugin-babel';
 
 import pkg from './package.json';
 
+const pluginResolve = resolve({
+
+});
+const pluginCommonJS = commonjs({
+
+});
 const pluginCopy = copy({
   'src/styles/poke43-dark.css': 'dist/poke43-dark.css'
 });
@@ -36,6 +44,8 @@ const config = [{
     sourcemap: true
   },
   plugins: [
+    pluginResolve,
+    pluginCommonJS,
     pluginCopy,
     pluginHtml,
     pluginSass,
@@ -53,6 +63,8 @@ const config = [{
     sourcemap: true
   },
   plugins: [
+    pluginResolve,
+    pluginCommonJS,
     pluginCopy,
     pluginHtml,
     pluginSass,

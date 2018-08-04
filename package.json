@@ -26,15 +26,20 @@
     "pm:restart": "sudo pm2 restart ./pm2.process.json --update-env"
   },
   "devDependencies": {
+    "@emmetio/extract-abbreviation": "^0.2.0",
+    "@emmetio/field-parser": "^0.3.1",
     "babel-core": "^6.26.3",
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "rollup": "^0.63.5",
     "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-commonjs": "^9.1.4",
     "rollup-plugin-copy": "^0.2.3",
     "rollup-plugin-html": "^0.2.1",
     "rollup-plugin-json": "^3.0.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-sass": "^0.9.2"
-  }
+  },
+  "dependencies": {}
 }
