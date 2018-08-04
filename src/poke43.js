@@ -1033,16 +1033,7 @@ class Editor {
   }
 
   evalJS() {
-    let res = eval(this.content),
-      snip = (s, n) => {
-        let s1 = s.replace(/\s+/g, ' ');
-
-        return (s1.length > n) ? `${s1.slice(0, n)}...` : s1;
-      };
-
-    if (window.Peek42 && ['boolean', 'number', 'string'].includes(typeof res)) {
-      p(res, snip(this.content, 101));
-    }
+    (new Function(this.content))();
 
     return this;
   }
