@@ -36,8 +36,16 @@ const pluginBabel = babel({
 });
 
 const config = [{
+  external: [
+    'hammerjs',
+    '@emmetio/expand-abbreviation'
+  ],
   input: './src/index.js',
   output: {
+    globals: {
+      'hammerjs': 'Hammer',
+      '@emmetio/expand-abbreviation': 'emmet'
+    },
     format: 'umd',
     file: pkg.browser,
     name: pkg.name,
@@ -56,6 +64,10 @@ const config = [{
     include: 'src/**'
   }
 }, {
+  external: [
+    'hammerjs',
+    '@emmetio/expand-abbreviation'
+  ],
   input: './src/index.mjs',
   output: {
     format: 'es',

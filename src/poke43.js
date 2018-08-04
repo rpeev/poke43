@@ -1,3 +1,8 @@
+// external
+import Hammer from 'hammerjs';
+import emmet from '@emmetio/expand-abbreviation';
+//
+
 import {
   name as LIB_NAME,
   version as LIB_VERSION
