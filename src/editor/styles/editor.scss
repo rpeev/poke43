@@ -1,0 +1,57 @@
+@import '../../styles/config';
+
+.poke43-editor {
+  overflow: scroll;
+  padding: 2px;
+  border: 1px solid #dedede;
+  border-radius: 0.5ex;
+  background: #fdfdfd;
+  color: black;
+  white-space: pre;
+  font-family: Menlo, monospace;
+  font-size: 1.3em;
+}
+
+.poke43-editor-editing {
+  border: 1px solid #563d7c;
+  border-radius: 0.5ex;
+  background: white;
+  color: black;
+}
+
+.poke43-line {
+  white-space: nowrap;
+}
+
+.poke43-line-active {
+
+}
+
+.poke43-line-part {
+  display: inline-block;
+  position: relative;
+  white-space: pre;
+}
+
+.poke43-line-part1 {
+
+}
+
+.poke43-line-caret {
+  left: -1px;
+  border-right: 3px solid navy;
+}
+
+@keyframes poke43-blink-border-color {
+  0% { border-color: inherit; }
+  50% { border-color: transparent; }
+  100% { border-color: inherit; }
+}
+
+.poke43-blink-border-color {
+  animation: 1s ease 0.3s infinite poke43-blink-border-color;
+}
+
+.poke43-line-part2 {
+  left: -3px;
+}
