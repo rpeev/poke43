@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.0.1
+
+* Fix implementation quirk that required `poke43` to be global when using the ES module bundle
+
 ## 2.0.0
 
 * Significantly restructure source and use rollup to build browser and ES module bundles
