@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/peek42@latest/dist/peek42.css" />
       <link rel="stylesheet" id="peek42DarkCss" />
-    <link rel="stylesheet" href="https://unpkg.com/poke43@latest/poke43.css" />
+    <link rel="stylesheet" href="https://unpkg.com/poke43@latest/dist/poke43.css" />
       <link rel="stylesheet" id="poke43DarkCss" />
 
     <style>
@@ -45,15 +45,9 @@
 
     <script src="https://unpkg.com/apivis@latest/dist/apivis.browser.js"></script>
     <script src="https://unpkg.com/peek42@latest/dist/peek42.browser.js"></script>
-      <!-- Conform to the old peek42 interface until poke43 gets updated -->
-      <script>Object.assign(window, {
-        Peek42: {}
-      });</script>
     <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
     <script src="https://unpkg.com/@emmetio/expand-abbreviation@latest/dist/expand-full.js"></script>
-    <script src="https://unpkg.com/poke43@latest/emmet-extract-abbreviation.js"></script>
-    <script src="https://unpkg.com/poke43@latest/emmet-field-parser.js"></script>
-    <script src="https://unpkg.com/poke43@latest/poke43.js"></script>
+    <script src="https://unpkg.com/poke43@latest/dist/poke43.browser.js"></script>
 
     <script>(() => { 'use strict';
 const {Poke} = poke43;
@@ -107,12 +101,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   let peek42DarkCss = document.getElementById('peek42DarkCss');
   let peek42DarkCssUrl = 'https://unpkg.com/peek42@latest/dist/peek42-dark.css';
   let poke43DarkCss = document.getElementById('poke43DarkCss');
-  let poke43DarkCssUrl = 'https://unpkg.com/poke43@latest/poke43-dark.css';
+  let poke43DarkCssUrl = 'https://unpkg.com/poke43@latest/dist/poke43-dark.css';
   let switchTheme = document.getElementById('switchTheme');
   let loadContent = document.getElementById('loadContent');
   let clearEditor = document.getElementById('clearEditor');
   let poke = new Poke(document.getElementById('poke'));
-  let contentPath = 'https://unpkg.com/poke43@latest/poke43.js';
+  let contentPath = 'https://unpkg.com/poke43@latest/dist/poke43.browser.js';
 
   switchTheme.addEventListener('click', () => {
     let html = document.documentElement;
