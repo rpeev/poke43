@@ -534,7 +534,21 @@ class Editor {
   }
 
   evalJS() {
-    (new Function(this.content))();
+    let snip = (str, n) => str.trim().
+      replace(/\s+/gm, ' ').
+      substr(0, n) + ((n < str.length) ? '...' : '');
+    let eval2 = eval;
+    let res = eval2(this.content);
+
+    if (['boolean', 'number', 'string'].includes(typeof res)) {
+      let excerpt = snip(this.content, 101);
+
+      if (window.peek42) {
+        peek42.p(res, excerpt);
+      } else {
+        console.log(`// ${excerpt}\n${res}`);
+      }
+    }
 
     return this;
   }
