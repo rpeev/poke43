@@ -1,5 +1,6 @@
 import Hammer from 'hammerjs';
 
+import poke43 from '../base';
 import './styles/keyboard.scss';
 import Key from './key';
 import EditorKey, {

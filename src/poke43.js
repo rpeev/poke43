@@ -1,7 +1,4 @@
-import {
-  name as LIB_NAME,
-  version as LIB_VERSION
-} from '../package.json';
+import poke43 from './base.js';
 import './styles/base.scss';
 import Editor, {
   EditorModel,
@@ -41,11 +38,7 @@ class Poke {
   }
 }
 
-const poke43 = {
-  get [Symbol.toStringTag]() {
-    return LIB_NAME;
-  },
-  version: LIB_VERSION,
+Object.assign(poke43, {
   Poke,
   Editor,
   EditorModel,
@@ -65,7 +58,7 @@ const poke43 = {
   EditorKeySymbol,
   EditorKeyCustom,
   KeyboardKey
-};
+});
 
 export {
   Poke,
