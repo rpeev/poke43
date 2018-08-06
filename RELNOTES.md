@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.0.0
+
+* Significantly restructure source and use rollup to build browser and ES module bundles
+
 ## 1.15.0
 
 * Fix line height and touched line index calculations yielding incorrect values when editor is taller than the lines contained
