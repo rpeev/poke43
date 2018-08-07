@@ -3,6 +3,11 @@ import Hammer from 'hammerjs';
 import poke43 from '../base';
 import symBlockPoke43HTML from './layouts/sym-block-poke43.html';
 import symBlockTextasticHTML from './layouts/sym-block-textastic.html';
+import custBlockHTML from './layouts/cust-block.html';
+import langBlockEnUsQwertyHTML from './layouts/lang-block-en-us-qwerty.html';
+import langBlockEnUsQwertySymHTML from './layouts/lang-block-en-us-qwerty-sym.html';
+import langBlockBgBgPhoneticHTML from './layouts/lang-block-bg-bg-phonetic.html';
+import langBlockBgBgPhoneticSymHTML from './layouts/lang-block-bg-bg-phonetic-sym.html';
 import './styles/keyboard.scss';
 import Key from './key';
 import EditorKey, {
@@ -23,6 +28,11 @@ import KeyboardKey from './keyboard-key';
 class Keyboard {
   static _symBlockPoke43Layout = symBlockPoke43HTML;
   static _symBlockTextasticLayout = symBlockTextasticHTML;
+  static _custBlockLayout = custBlockHTML;
+  static _langBlockEnUsQwertyLayout = langBlockEnUsQwertyHTML;
+  static _langBlockEnUsQwertySymLayout = langBlockEnUsQwertySymHTML;
+  static _langBlockBgBgPhoneticLayout = langBlockBgBgPhoneticHTML;
+  static _langBlockBgBgPhoneticSymLayout = langBlockBgBgPhoneticSymHTML;
 
   constructor(editor, el) {
     this._editor = editor;
@@ -104,14 +114,7 @@ class Keyboard {
   _custBlockHide() { this._hideRowEls(this._custBlockIndices); }
   _custBlockShow() { this._showRowEls(this._custBlockIndices); }
   get _custBlockLayout() {
-    return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorKeyCustom"></span>
-<span data-type="EditorKeyCustom"></span>
-<span data-type="EditorKeyCustom"></span>
-<span data-type="EditorKeyCustom"></span>
-<span data-type="EditorKeyCustom"></span>
-<span data-type="EditorKeyCustom"></span>
-    </div>`;
+    return this.constructor._custBlockLayout;
   }
 
   get _langBlockEnUsQwertyIndices() { return [3, 4, 5]; }
@@ -125,123 +128,14 @@ class Keyboard {
       this._langBlockEnUsQwertySymIndices);
   }
   get _langBlockEnUsQwertyLayout() {
-    return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorKeyCharacterSpaceMove" data-text="q"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="w"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="e"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="r"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="t"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="y"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="u"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="i"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="o"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="p"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span class="poke43-key-move1" data-type="EditorKeyCharacterSpaceMove"
-  data-text="a"
-  data-command3="moveToEOL"
-  data-command7="moveToSOL"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="s"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="d"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="f"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="g"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="h"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="j"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="k"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="l"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span data-type="KeyboardKey"
-  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
-  data-command1="toggleSymBlock"
-  data-command3="cycleSymBlockLayouts"
-  data-command5="toggleCustBlock"></span>
-<span data-type="EditorKeyCharacterSpaceMoveWB" data-text="z"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="x"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="c"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="v"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="b"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="n"></span>
-<span data-type="EditorKeyCharacterEnterDeleteWB" data-text="m"></span>
-<span data-type="KeyboardKey"
-  data-hint="\u2728"
-  data-command1="hide"
-  data-command3="expandAbbreviation"
-  data-command5="evalJS"></span>
-    </div>`;
+    return this.constructor._langBlockEnUsQwertyLayout;
   }
 
   get _langBlockEnUsQwertySymIndices() { return [6, 7, 8]; }
   _langBlockEnUsQwertySymHide() { this._hideRowEls(this._langBlockEnUsQwertySymIndices); }
   _langBlockEnUsQwertySymShow() { this._showRowEls(this._langBlockEnUsQwertySymIndices); }
   get _langBlockEnUsQwertySymLayout() {
-    return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="q" data-text2="!" data-text4="1"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="w" data-text2="@" data-text4="2"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="e" data-text2="#" data-text4="3"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="r" data-text2="$" data-text4="4"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="t" data-text2="%" data-text4="5"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="y" data-text2="^" data-text4="6"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="u" data-text2="&" data-text4="7"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="i" data-text2="*" data-text4="8"></span>
-<span data-type="EditorKeyCharSymEnterDelete"
-  data-text="o" data-text2="(" data-text4="9"></span>
-<span data-type="EditorKeyCharSymEnterDelete"
-  data-text="p" data-text2=")" data-text4="0"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span class="poke43-key-move1" data-type="EditorKeyCharSymSpaceMove"
-  data-text="a"
-  data-command3="moveToEOL"
-  data-command7="moveToSOL"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="s" data-text2="_" data-text4="-"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="d" data-text2="+" data-text4="="></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="f" data-text2="{" data-text4="["></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="g" data-text2="}" data-text4="]"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="h" data-text2=":" data-text4=";"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="j" data-text2='"' data-text4="'"></span>
-<span data-type="EditorKeyCharSymEnterDelete"
-  data-text="k" data-text2="|" data-text4="\\"></span>
-<span data-type="EditorKeyCharSymEnterDelete" data-text="l"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span data-type="KeyboardKey"
-  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
-  data-command1="toggleSymBlock"
-  data-command3="cycleSymBlockLayouts"
-  data-command5="toggleCustBlock"></span>
-<span data-type="EditorKeyCharSymSpaceMoveWB" data-text="z"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="x" data-text2="~" data-text4="\`"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="c" data-text2="<" data-text4=","></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="v" data-text2=">" data-text4="."></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="b" data-text2="?" data-text4="/"></span>
-<span data-type="EditorKeyCharSymSpaceMove" data-text="n"></span>
-<span data-type="EditorKeyCharSymEnterDeleteWB" data-text="m"></span>
-<span data-type="KeyboardKey"
-  data-hint="\u2728"
-  data-command1="hide"
-  data-command3="expandAbbreviation"
-  data-command5="evalJS"></span>
-    </div>`;
+    return this.constructor._langBlockEnUsQwertySymLayout;
   }
 
   get _langBlockBgBgPhoneticIndices() { return [9, 10, 11]; }
@@ -255,133 +149,14 @@ class Keyboard {
       this._langBlockBgBgPhoneticSymIndices);
   }
   get _langBlockBgBgPhoneticLayout() {
-    return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorKeyCharacterSpaceMove" data-text="я"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="в"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="е"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="р"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="т"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="ъ"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="у"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="и"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="о"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="п"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="ю"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span class="poke43-key-move1" data-type="EditorKeyCharacterSpaceMove"
-  data-text="а"
-  data-command3="moveToEOL"
-  data-command7="moveToSOL"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="с"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="д"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="ф"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="г"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="х"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="й"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="к"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="л"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="ш"></span>
-<span data-type="EditorKeyCharacterEnterDelete" data-text="щ"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span data-type="KeyboardKey"
-  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
-  data-command1="toggleSymBlock"
-  data-command3="cycleSymBlockLayouts"
-  data-command5="toggleCustBlock"></span>
-<span data-type="EditorKeyCharacterSpaceMoveWB" data-text="з"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="ь"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="ц"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="ж"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="б"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="н" data-text2="\u2116"></span>
-<span data-type="EditorKeyCharacterSpaceMove" data-text="м"></span>
-<span data-type="EditorKeyCharacterEnterDeleteWB" data-text="ч"></span>
-<span data-type="KeyboardKey"
-  data-hint="\u2728"
-  data-command1="hide"
-  data-command3="expandAbbreviation"
-  data-command5="evalJS"></span>
-    </div>`;
+    return this.constructor._langBlockBgBgPhoneticLayout;
   }
 
   get _langBlockBgBgPhoneticSymIndices() { return [12, 13, 14]; }
   _langBlockBgBgPhoneticSymHide() { this._hideRowEls(this._langBlockBgBgPhoneticSymIndices); }
   _langBlockBgBgPhoneticSymShow() { this._showRowEls(this._langBlockBgBgPhoneticSymIndices); }
   get _langBlockBgBgPhoneticSymLayout() {
-    return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="я" data-text2="!" data-text4="1"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="в" data-text2="@" data-text4="2"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="е" data-text2="#" data-text4="3"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="р" data-text2="$" data-text4="4"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="т" data-text2="%" data-text4="5"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="ъ" data-text2="^" data-text4="6"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="у" data-text2="&" data-text4="7"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="и" data-text2="*" data-text4="8"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="о" data-text2="(" data-text4="9"></span>
-<span data-type="EditorKeyCharSymEnterDelete"
-  data-text="п" data-text2=")" data-text4="0"></span>
-<span data-type="EditorKeyCharSymEnterDelete" data-text="ю"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span class="poke43-key-move1" data-type="EditorKeyCharSymSpaceMove"
-  data-text="а"
-  data-command3="moveToEOL"
-  data-command7="moveToSOL"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="с" data-text2="_" data-text4="-"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="д" data-text2="+" data-text4="="></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="ф" data-text2="{" data-text4="["></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="г" data-text2="}" data-text4="]"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="х" data-text2=":" data-text4=";"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="й" data-text2='"' data-text4="'"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="к" data-text2="|" data-text4="\\"></span>
-<span data-type="EditorKeyCharSymSpaceMove" data-text="л"></span>
-<span data-type="EditorKeyCharSymEnterDelete" data-text="ш"></span>
-<span data-type="EditorKeyCharSymEnterDelete" data-text="щ"></span>
-    </div>
-    <div class="poke43-keyboard-row" style="display: none;">
-<span data-type="KeyboardKey"
-  data-command="cycleLangBlockLayouts" data-hint="\u{1f310}"
-  data-command1="toggleSymBlock"
-  data-command3="cycleSymBlockLayouts"
-  data-command5="toggleCustBlock"></span>
-<span data-type="EditorKeyCharSymSpaceMoveWB" data-text="з"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="ь" data-text2="~" data-text4="\`"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="ц" data-text2="<" data-text4=","></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="ж" data-text2=">" data-text4="."></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="б" data-text2="?" data-text4="/"></span>
-<span data-type="EditorKeyCharSymSpaceMove"
-  data-text="н" data-text2="\u2116"></span>
-<span data-type="EditorKeyCharSymSpaceMove" data-text="м"></span>
-<span data-type="EditorKeyCharSymEnterDeleteWB" data-text="ч"></span>
-<span data-type="KeyboardKey"
-  data-hint="\u2728"
-  data-command1="hide"
-  data-command3="expandAbbreviation"
-  data-command5="evalJS"></span>
-    </div>`;
+    return this.constructor._langBlockBgBgPhoneticSymLayout;
   }
 
   _renderDefaultLayout() {
