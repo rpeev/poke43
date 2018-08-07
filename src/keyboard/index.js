@@ -1,6 +1,8 @@
 import Hammer from 'hammerjs';
 
 import poke43 from '../base';
+import symBlockPoke43HTML from './layouts/sym-block-poke43.html';
+import symBlockTextasticHTML from './layouts/sym-block-textastic.html';
 import './styles/keyboard.scss';
 import Key from './key';
 import EditorKey, {
@@ -19,6 +21,9 @@ import EditorKey, {
 import KeyboardKey from './keyboard-key';
 
 class Keyboard {
+  static _symBlockPoke43Layout = symBlockPoke43HTML;
+  static _symBlockTextasticLayout = symBlockTextasticHTML;
+
   constructor(editor, el) {
     this._editor = editor;
     this._el = el;
@@ -85,121 +90,14 @@ class Keyboard {
   _symBlockPoke43Hide() { this._hideRowEls(this._symBlockPoke43Indices); }
   _symBlockPoke43Show() { this._showRowEls(this._symBlockPoke43Indices); }
   get _symBlockPoke43Layout() {
-    return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorKeySymbol"
-  data-text="0"
-  data-text2="2"
-  data-text4="4"
-  data-text6="3"
-  data-text8="1"></span>
-<span data-type="EditorKeySymbol"
-  data-text="5"
-  data-text2="7"
-  data-text4="9"
-  data-text6="8"
-  data-text8="6"></span>
-<span data-type="EditorKeySymbol"
-  data-text="+"
-  data-text2="*"
-  data-text4="%"
-  data-text6="_"
-  data-text8="-"></span>
-<span data-type="EditorKeySymbol"
-  data-text="="
-  data-text2="/"
-  data-text4=">"
-  data-text6="<"
-  data-text8="\\"></span>
-<span data-type="EditorKeySymbol"
-  data-text="&"
-  data-text2="|"
-  data-text4=")"
-  data-text6="("
-  data-text8="~"></span>
-<span data-type="EditorKeySymbol"
-  data-text="#"
-  data-text2="$"
-  data-text4="]"
-  data-text6="["
-  data-text8="^"></span>
-<span data-type="EditorKeySymbol"
-  data-text="@"
-  data-text2="'"
-  data-text4="}"
-  data-text6="{"
-  data-text8="\`"></span>
-<span data-type="EditorKeySymbol"
-  data-text='"'
-  data-text2="?"
-  data-text4="."
-  data-text6=","
-  data-text8="!"></span>
-<span data-type="EditorKeySymbol"
-  data-text=";"
-  data-text2=":"></span>
-    </div>`;
+    return this.constructor._symBlockPoke43Layout;
   }
 
   get _symBlockTextasticIndices() { return [1]; }
   _symBlockTextasticHide() { this._hideRowEls(this._symBlockTextasticIndices); }
   _symBlockTextasticShow() { this._showRowEls(this._symBlockTextasticIndices); }
   get _symBlockTextasticLayout() {
-    return `<div class="poke43-keyboard-row" style="display: none;">
-<span data-type="EditorKeySymbol"
-  data-text="0"
-  data-text2="2"
-  data-text4="4"
-  data-text6="3"
-  data-text8="1"></span>
-<span data-type="EditorKeySymbol"
-  data-text="5"
-  data-text2="7"
-  data-text4="9"
-  data-text6="8"
-  data-text8="6"></span>
-<span data-type="EditorKeySymbol"
-  data-text='"'
-  data-text2=")"
-  data-text4="]"
-  data-text6="["
-  data-text8="("></span>
-<span data-type="EditorKeySymbol"
-  data-text="'"
-  data-text2="}"
-  data-text4=">"
-  data-text6="<"
-  data-text8="{"></span>
-<span data-type="EditorKeySymbol"
-  data-text="$"
-  data-text2="/"
-  data-text4="\`"
-  data-text6="´"
-  data-text8="\\"></span>
-<span data-type="EditorKeySymbol"
-  data-text="|"
-  data-text2="^"
-  data-text4="£"
-  data-text6="€"
-  data-text8="~"></span>
-<span data-type="EditorKeySymbol"
-  data-text="="
-  data-text2="+"
-  data-text4="*"
-  data-text6="%"
-  data-text8="-"></span>
-<span data-type="EditorKeySymbol"
-  data-text="#"
-  data-text2="?"
-  data-text4="&"
-  data-text6="@"
-  data-text8="!"></span>
-<span data-type="EditorKeySymbol"
-  data-text=";"
-  data-text2=":"
-  data-text4="."
-  data-text6=","
-  data-text8="_"></span>
-    </div>`;
+    return this.constructor._symBlockTextasticLayout;
   }
 
   get _custBlockIndices() { return [2]; }

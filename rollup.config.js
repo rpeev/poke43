@@ -1,19 +1,13 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import html from 'rollup-plugin-html';
 import sass from 'rollup-plugin-sass';
 import json from 'rollup-plugin-json';
 import babel from 'rollup-plugin-babel';
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 
 import pkg from './package.json';
 
-const pluginResolve = resolve({
-
-});
-const pluginCommonJS = commonjs({
-
-});
 const pluginCopy = copy({
   'src/styles/poke43-dark.css': 'dist/poke43-dark.css'
 });
@@ -34,6 +28,12 @@ const pluginBabel = babel({
     'transform-object-rest-spread'
   ]
 });
+const pluginResolve = resolve({
+
+});
+const pluginCommonJS = commonjs({
+
+});
 
 const config = [{
   external: [
@@ -52,13 +52,13 @@ const config = [{
     sourcemap: true
   },
   plugins: [
-    pluginResolve,
-    pluginCommonJS,
     pluginCopy,
     pluginHtml,
     pluginSass,
     pluginJson,
-    pluginBabel
+    pluginBabel,
+    pluginResolve,
+    pluginCommonJS
   ],
   watch: {
     include: 'src/**'
@@ -75,13 +75,13 @@ const config = [{
     sourcemap: true
   },
   plugins: [
-    pluginResolve,
-    pluginCommonJS,
     pluginCopy,
     pluginHtml,
     pluginSass,
     pluginJson,
-    pluginBabel
+    pluginBabel,
+    pluginResolve,
+    pluginCommonJS
   ],
   watch: {
     include: 'src/**'
