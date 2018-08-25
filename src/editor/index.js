@@ -537,11 +537,22 @@ class Editor {
     let snip = (str, n) => str.trim().
       replace(/\s+/gm, ' ').
       substr(0, n) + ((n < str.length) ? '...' : '');
+    let src = this.content;
     let eval2 = eval;
-    let res = eval2(this.content);
+    let res;
+
+    try {
+      res = eval2(src);
+    } catch (err) {
+      if (!err.sourceURL) {
+        err.sourceText = src;
+      }
+
+      throw err;
+    }
 
     if (['boolean', 'number', 'string'].includes(typeof res)) {
-      let excerpt = snip(this.content, 101);
+      let excerpt = snip(src, 101);
 
       if (window.peek42) {
         peek42.p(res, excerpt);
