@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.1.0
+
+* Better support for error source traces when evaluating editor content as JS
+
 ## 2.0.1
 
 * Fix implementation quirk that required `poke43` to be global when using the ES module bundle
