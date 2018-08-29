@@ -534,10 +534,21 @@ class Editor {
   }
 
   evalJS() {
-    let snip = (str, n) => str.trim().
-      replace(/\s+/gm, ' ').
-      substr(0, n) + ((n < str.length) ? '...' : '');
+    const {toString} = Object.prototype;
+    const output = (v, comment) => {
+      if (window.peek42) {
+        peek42.p(v, (comment !== '') ? comment : ' ');
+      } else {
+        console.log(`// ${comment}\n${v}`);
+      }
+    };
+    const snip = (str, n) => {
+      let str1 = str.replace(/\s+/gm, ' ');
+
+      return (str1.length > n) ? `${str1.slice(0, n)}...` : str1;
+    };
     let src = this.content;
+    let excerpt = snip(src, 101);
     let eval2 = eval;
     let res;
 
@@ -551,14 +562,19 @@ class Editor {
       throw err;
     }
 
-    if (['boolean', 'number', 'string'].includes(typeof res)) {
-      let excerpt = snip(src, 101);
-
-      if (window.peek42) {
-        peek42.p(res, excerpt);
-      } else {
-        console.log(`// ${excerpt}\n${res}`);
-      }
+    switch (typeof res) {
+    case 'boolean':
+    case 'number':
+    case 'string':
+      output(res, excerpt); break;
+    case 'symbol':
+      output(String(res), excerpt); break;
+    case 'object':
+    case 'function':
+      output(toString.call(res), excerpt); break;
+    case 'undefined':
+    default:
+      output('\u2713', excerpt); break;
     }
 
     return this;
