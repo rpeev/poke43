@@ -23,8 +23,8 @@ const pluginJson = json({
 const pluginBabel = babel({
   exclude: 'node_modules/**',
   plugins: [
-    '@babel/proposal-class-properties',
-    '@babel/proposal-object-rest-spread'
+    '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-proposal-object-rest-spread'
   ]
 });
 const pluginResolve = resolve({
