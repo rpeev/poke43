@@ -31,13 +31,13 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@emmetio/extract-abbreviation": "^0.2.0",
     "@emmetio/field-parser": "^0.3.1",
-    "rollup": "^0.65.0",
-    "rollup-plugin-babel": "^4.0.1",
+    "rollup": "^0.65.2",
+    "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-copy": "^0.2.3",
     "rollup-plugin-html": "^0.2.1",
     "rollup-plugin-json": "^3.0.0",
-    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-plugin-sass": "^0.9.2"
   },
   "dependencies": {
