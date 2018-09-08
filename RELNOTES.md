@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.2.0
+
+* Always show some output when eval'ing JS
+
 ## 2.1.0
 
 * Better support for error source traces when evaluating editor content as JS
