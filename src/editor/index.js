@@ -536,8 +536,10 @@ class Editor {
   evalJS() {
     const {toString} = Object.prototype;
     const output = (v, comment) => {
+      comment = `(eval JS) ${comment}`;
+
       if (window.peek42) {
-        peek42.p(v, (comment !== '') ? comment : ' ');
+        peek42.p(v, comment);
       } else {
         console.log(`// ${comment}\n${v}`);
       }
