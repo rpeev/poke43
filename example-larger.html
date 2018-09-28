@@ -7,9 +7,9 @@
     <title>Poke43 - larger example</title>
 
     <link rel="stylesheet" href="https://unpkg.com/peek42@latest/dist/peek42.css" />
-      <link rel="stylesheet" id="peek42DarkCss" />
+      <link rel="stylesheet" id="peek42-dark-css" />
     <link rel="stylesheet" href="https://unpkg.com/poke43@latest/dist/poke43.css" />
-      <link rel="stylesheet" id="poke43DarkCss" />
+      <link rel="stylesheet" id="poke43-dark-css" />
 
     <style>
 .light {
@@ -98,13 +98,13 @@ async function loadFile(poke, path) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  let peek42DarkCss = document.getElementById('peek42DarkCss');
+  let peek42DarkCss = document.getElementById('peek42-dark-css');
   let peek42DarkCssUrl = 'https://unpkg.com/peek42@latest/dist/peek42-dark.css';
-  let poke43DarkCss = document.getElementById('poke43DarkCss');
+  let poke43DarkCss = document.getElementById('poke43-dark-css');
   let poke43DarkCssUrl = 'https://unpkg.com/poke43@latest/dist/poke43-dark.css';
-  let switchTheme = document.getElementById('switchTheme');
-  let loadContent = document.getElementById('loadContent');
-  let clearEditor = document.getElementById('clearEditor');
+  let switchTheme = document.getElementById('switch-theme');
+  let loadContent = document.getElementById('load-content');
+  let clearEditor = document.getElementById('clear-editor');
   let poke = new Poke(document.getElementById('poke'));
   let contentPath = 'https://unpkg.com/poke43@latest/dist/poke43.browser.js';
 
@@ -113,14 +113,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let pageClasses = html.classList;
 
     if (pageClasses.contains('light')) {
-      pageClasses.remove('light');
-      pageClasses.add('dark');
+      pageClasses.replace('light', 'dark');
       peek42DarkCss.setAttribute('href', peek42DarkCssUrl);
       poke43DarkCss.setAttribute('href', poke43DarkCssUrl);
       switchTheme.textContent = 'Light Theme';
     } else {
-      pageClasses.remove('dark');
-      pageClasses.add('light');
+      pageClasses.replace('dark', 'light');
       peek42DarkCss.removeAttribute('href');
       poke43DarkCss.removeAttribute('href');
       switchTheme.textContent = 'Dark Theme';
@@ -142,9 +140,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   <body>
 <h1 id="about">Poke43 - larger example [<a href="./index.html">Index</a>]
-  <button id="switchTheme">Dark Theme</button>
-  <button id="loadContent">Load Content</button>
-  <button id="clearEditor">Clear Editor</button>
+  <button id="switch-theme">Dark Theme</button>
+  <button id="load-content">Load Content</button>
+  <button id="clear-editor">Clear Editor</button>
 </h1>
 
 <div id="poke">
