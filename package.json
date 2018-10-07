@@ -31,7 +31,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@emmetio/extract-abbreviation": "^0.2.0",
     "@emmetio/field-parser": "^0.3.1",
-    "rollup": "^0.66.2",
+    "rollup": "^0.66.4",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.1.8",
     "rollup-plugin-copy": "^0.2.3",
