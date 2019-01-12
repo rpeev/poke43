@@ -1,4 +1,5 @@
 import poke43 from './base.js';
+import Editor from './editor';
 import Keyboard from './keyboard';
 
 /* Notes:
@@ -113,7 +114,7 @@ const editorMixin = {
   },
 
   evalJS() {
-    console.warn('TODO: Implement evalJS');
+    Editor.prototype.evalJS.call(this);
   }
 };
 
