@@ -154,8 +154,7 @@ const editorMixinGetSet = {
 };
 
 const editorize = inst => Object.defineProperties(
-  Object.assign(inst, editorMixin),
-  editorMixinGetSet
+  Object.assign(inst, editorMixin), editorMixinGetSet
 );
 
 const keyboardize = inst => {
@@ -171,6 +170,10 @@ const keyboardize = inst => {
 };
 
 const pokeize = ctor => class extends ctor {
+  static get [Symbol.toStringTag]() {
+    return 'pokeize(CodeMirror)';
+  }
+
   get [Symbol.toStringTag]() {
     return 'pokeize(CodeMirror)';
   }
