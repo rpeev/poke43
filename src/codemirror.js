@@ -2,7 +2,7 @@ import poke43 from './base.js';
 import Editor from './editor';
 import Keyboard from './keyboard';
 
-/* Notes:
+/* NOTE:
   - Class factory (pokeize) is used instead of just extending from CodeMirror to avoid introducing hard dependency on it and reserve the possibility to add options
   - CodeMirror.fromTextArea creates CodeMirror instance so just extending from it and implementing the Poke43 editor interface methods won't work. Instead, the created CodeMirror instance (either via fromTextArea or the constructor) is augmented with the necessary methods and props using a mixin approach
 */
@@ -16,18 +16,17 @@ const initialize = opts => Object.assign(opts, {
 // Poke43 editor interface (without getters/setters)
 // implemented in terms of a CodeMirror instance (this)
 const editorMixin = {
-  // Dummy
-  _el: {
-    classList: {
-      add() {},
-      remove() {}
-    }
-  },
+  // Dummy Poke43 editor DOM element
+  _el: {classList: {add() {}, remove() {}}},
 
-  // Dummy
+  // Fake Poke43 editor view
   _view: {
-    showCaret() {},
-    hideCaret() {}
+    showCaret(inst) {
+      inst.getWrapperElement().classList.add('pokeized-editing');
+    },
+    hideCaret(inst) {
+      inst.getWrapperElement().classList.remove('pokeized-editing');
+    }
   },
 
   moveBackward() {
@@ -138,6 +137,7 @@ const keyboardize = inst => {
   let elParent = el.parentElement;
   let elKbd = document.createElement('div');
 
+  el.classList.add('pokeized-editing');
   elParent.insertBefore(elKbd, el);
   inst._keyboard = new Keyboard(inst, elKbd);
   inst.on('touchstart', () => inst._keyboard.show());

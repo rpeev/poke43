@@ -55,3 +55,14 @@
 .poke43-line-part2 {
   left: -3px;
 }
+
+.pokeized-editing .CodeMirror-cursors {
+  visibility: visible !important;
+}
+
+.pokeized-editing .CodeMirror-cursor {
+  width: 0;
+  border-right: none;
+  border-left: 3px solid navy;
+  animation: 1s ease 0.3s infinite poke43-blink-border-color;
+}

@@ -253,15 +253,21 @@ ${this._langBlockBgBgPhoneticSymLayout}
   }
 
   hide() {
-    this._el.style.display = 'none';
-    this._editor._el.classList.remove('poke43-editor-editing');
-    this._editor._view.hideCaret();
+    if (this._el.style.display !== 'none') {
+      this._el.style.display = 'none';
+      this._editor._el.classList.remove('poke43-editor-editing');
+      // NOTE: Passing editor instance needed for CodeMirror interop
+      this._editor._view.hideCaret(this._editor);
+    }
   }
 
   show() {
-    this._el.style.display = '';
-    this._editor._el.classList.add('poke43-editor-editing');
-    this._editor._view.showCaret();
+    if (this._el.style.display === 'none') {
+      this._el.style.display = '';
+      this._editor._el.classList.add('poke43-editor-editing');
+      // NOTE: Passing editor instance needed for CodeMirror interop
+      this._editor._view.showCaret(this._editor);
+    }
   }
 
   expandAbbreviation() {

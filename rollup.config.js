@@ -9,7 +9,6 @@ import commonjs from 'rollup-plugin-commonjs';
 import pkg from './package.json';
 
 const pluginCopy = copy({
-  'src/styles/poke43-codemirror.css': 'dist/poke43-codemirror.css',
   'src/styles/poke43-dark.css': 'dist/poke43-dark.css'
 });
 const pluginHtml = html({
