@@ -258,6 +258,8 @@ ${this._langBlockBgBgPhoneticSymLayout}
       this._editor._el.classList.remove('poke43-editor-editing');
       // NOTE: Passing editor instance needed for CodeMirror interop
       this._editor._view.hideCaret(this._editor);
+      // NOTE: Cache hidden status to aid CodeMirror interop functions
+      this._hidden = true;
     }
   }
 
@@ -267,6 +269,8 @@ ${this._langBlockBgBgPhoneticSymLayout}
       this._editor._el.classList.add('poke43-editor-editing');
       // NOTE: Passing editor instance needed for CodeMirror interop
       this._editor._view.showCaret(this._editor);
+      // NOTE: Cache hidden status to aid CodeMirror interop functions
+      this._hidden = false;
     }
   }
 

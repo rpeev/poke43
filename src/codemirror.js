@@ -135,6 +135,27 @@ const editorize = inst => Object.defineProperties(
   Object.assign(inst, editorMixin), editorMixinGetSet
 );
 
+const KEYBOARD_SHOW_TIMER = 100;
+
+const setKeyboardShowTimer = inst => {
+  let kbd = inst._keyboard;
+
+  if (kbd._hidden) {
+    kbd._showTimerId = setTimeout(() => {
+      kbd.show();
+    }, KEYBOARD_SHOW_TIMER);
+  }
+};
+
+const clearKeyboardShowTimer = inst => {
+  let kbd = inst._keyboard;
+
+  if (kbd._hidden && kbd._showTimerId) {
+    clearInterval(kbd._showTimerId);
+    kbd._showTimerId = null;
+  }
+};
+
 // Create and attach Poke43 keyboard to CodeMirror instance
 const keyboardize = inst => {
   let el = inst.getWrapperElement();
@@ -144,7 +165,10 @@ const keyboardize = inst => {
   el.classList.add('pokeized-editing');
   elParent.insertBefore(elKbd, el);
   inst._keyboard = new Keyboard(inst, elKbd);
-  inst.on('touchstart', () => inst._keyboard.show());
+  // NOTE: Hack to show keyboard on content click. Better solution?
+  inst.on('touchstart', setKeyboardShowTimer);
+  inst.on('scroll', clearKeyboardShowTimer);
+  inst.on('gutterClick', clearKeyboardShowTimer);
 
   return inst;
 };
