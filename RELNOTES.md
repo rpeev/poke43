@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.3.0
+
+* Add support for using CodeMirror as editor
+
 ## 2.2.0
 
 * Always show some output when eval'ing JS
