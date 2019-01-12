@@ -38,63 +38,12 @@ class Poke {
   }
 }
 
-function pokeize(CM) {
-  const ensure = opts => Object.assign(opts, {
-    inputStyle: 'textarea',
-    readOnly: 'nocursor'
-  });
+const initialize = opts => Object.assign(opts, {
+  inputStyle: 'textarea',
+  readOnly: 'nocursor'
+});
 
-  const getset = {
-    content: {
-      get() { return this.getValue(); },
-      set(text) { this.setValue(text); }
-    }
-  };
-
-  return class extends CM {
-    static fromTextArea(el, opts) {
-      let cm = Object.defineProperties(
-        Object.assign(
-          super.fromTextArea(el, ensure(opts)),
-          _PokeEditorMixin
-        ),
-        getset
-      );
-
-      let elCm = cm.getWrapperElement();
-      let elCmParent = elCm.parentElement;
-      let elKbd = document.createElement('div');
-
-      elCmParent.insertBefore(elKbd, elCm);
-      cm._keyboard = new Keyboard(cm, elKbd);
-      cm.on('touchstart', () => cm._keyboard.show());
-
-      return cm;
-    }
-
-    constructor(el, opts) {
-      super(el, ensure(opts));
-
-      Object.defineProperties(
-        Object.assign(
-          this,
-          _PokeEditorMixin
-        ),
-        getset
-      );
-
-      let elCm = this.getWrapperElement();
-      let elCmParent = elCm.parentElement;
-      let elKbd = document.createElement('div');
-
-      elCmParent.insertBefore(elKbd, elCm);
-      this._keyboard = new Keyboard(this, elKbd);
-      this.on('touchstart', () => this._keyboard.show());
-    }
-  };
-}
-
-const _PokeEditorMixin = {
+const editorMixin = {
   // Dummy
   _el: {
     classList: {
@@ -194,6 +143,48 @@ const _PokeEditorMixin = {
 
   evalJS() {
     console.warn('TODO: Implement evalJS');
+  }
+};
+
+const editorMixinGetSet = {
+  content: {
+    get() { return this.getValue(); },
+    set(text) { this.setValue(text); }
+  }
+};
+
+const editorize = inst => Object.defineProperties(
+  Object.assign(inst, editorMixin),
+  editorMixinGetSet
+);
+
+const keyboardize = inst => {
+  let el = inst.getWrapperElement();
+  let elParent = el.parentElement;
+  let elKbd = document.createElement('div');
+
+  elParent.insertBefore(elKbd, el);
+  inst._keyboard = new Keyboard(inst, elKbd);
+  inst.on('touchstart', () => inst._keyboard.show());
+
+  return inst;
+};
+
+const pokeize = ctor => class extends ctor {
+  get [Symbol.toStringTag]() {
+    return 'pokeize(CodeMirror)';
+  }
+
+  static fromTextArea(el, opts) {
+    let inst = super.fromTextArea(el, initialize(opts));
+
+    return keyboardize(editorize(inst));
+  }
+
+  constructor(el, opts) {
+    super(el, initialize(opts));
+
+    keyboardize(editorize(this));
   }
 };
 
