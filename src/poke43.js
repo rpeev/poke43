@@ -20,7 +20,7 @@ import Keyboard, {
   EditorKeyCustom,
   KeyboardKey
 } from './keyboard';
-import {pokeize} from './codemirror';
+import {pokeized} from './codemirror';
 
 class Poke {
   constructor(el) {
@@ -41,7 +41,7 @@ class Poke {
 
 Object.assign(poke43, {
   Poke,
-  pokeize,
+  pokeized,
   Editor,
   EditorModel,
   EditorView,

@@ -120,6 +120,10 @@ const editorMixin = {
 // Poke43 editor interface (getters/setters)
 // implemented in terms of a CodeMirror instance (this)
 const editorMixinGetSet = {
+  [Symbol.toStringTag]: {
+    get () { return 'pokeized(CodeMirror)'; }
+  },
+
   content: {
     get() { return this.getValue(); },
     set(text) { this.setValue(text); }
@@ -146,15 +150,11 @@ const keyboardize = inst => {
 };
 
 // 'pokeized' CodeMirror class factory, use like:
-// const PokeMirror = pokeize(CodeMirror);
+// const PokeMirror = pokeized(CodeMirror);
 // ...use like the regular CodeMirror ctor (fromTextArea, constructor, etc)
-const pokeize = ctor => class extends ctor {
+const pokeized = ctor => class extends ctor {
   static get [Symbol.toStringTag]() {
-    return 'pokeize(CodeMirror)';
-  }
-
-  get [Symbol.toStringTag]() {
-    return 'pokeize(CodeMirror)';
+    return 'pokeized(CodeMirror)';
   }
 
   static fromTextArea(el, opts) {
@@ -171,9 +171,9 @@ const pokeize = ctor => class extends ctor {
 };
 
 Object.assign(poke43, {
-  pokeize
+  pokeized
 });
 
 export {
-  pokeize
+  pokeized
 };
