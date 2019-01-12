@@ -114,6 +114,14 @@ const editorMixin = {
 
   evalJS() {
     Editor.prototype.evalJS.call(this);
+  },
+
+  performUndo() {
+    this.execCommand('undo');
+  },
+
+  performRedo() {
+    this.execCommand('redo');
   }
 };
 

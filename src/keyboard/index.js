@@ -281,6 +281,14 @@ ${this._langBlockBgBgPhoneticSymLayout}
   evalJS() {
     this._editor.evalJS();
   }
+
+  undo() {
+    this._editor.performUndo && this._editor.performUndo();
+  }
+
+  redo() {
+    this._editor.performRedo && this._editor.performRedo();
+  }
 }
 
 export {
