@@ -3,7 +3,7 @@ import Editor from './editor';
 import Keyboard from './keyboard';
 
 /* NOTE:
-  - Class factory (pokeize) is used instead of just extending from CodeMirror to avoid introducing hard dependency on it and reserve the possibility to add options
+  - Class factory (pokeized) is used instead of just extending from CodeMirror to avoid introducing hard dependency on it and reserve the possibility to add options
   - CodeMirror.fromTextArea creates CodeMirror instance so just extending from it and implementing the Poke43 editor interface methods won't work. Instead, the created CodeMirror instance (either via fromTextArea or the constructor) is augmented with the necessary methods and props using a mixin approach
 */
 
