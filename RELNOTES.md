@@ -1,5 +1,10 @@
 # Release Notes
 
+## 2.4.0
+
+* Add `codemirror` option (either boolean or CodeMirror options object) to `Poke` constructor to use CodeMirror as editor (the required dependencies have to be managed separately)
+* Add dark CodeMirror theme (ir_black variant) to dark css file
+
 ## 2.3.0
 
 * Add support for using CodeMirror as editor
