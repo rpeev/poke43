@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html lang="en" style="font-family: Avenir, sans-serif;">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Poke43 (CodeMirror)</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/peek42@latest/dist/peek42.css" />
+    <link rel="stylesheet" href="../dist/poke43.css" />
+    <link rel="stylesheet" href="https://unpkg.com/codemirror@latest/lib/codemirror.css" />
+      <!-- addon -->
+      <link rel="stylesheet" href="https://unpkg.com/codemirror@latest/addon/fold/foldgutter.css" />
+
+    <style>
+.CodeMirror {
+  height: 70vh;
+  overflow: auto;
+  border: 1px solid silver;
+  font-family: Monofur;
+  font-size: 1.3em;
+  line-height: 1.1em;
+}
+    </style>
+
+    <script src="https://unpkg.com/apivis@latest/dist/apivis.browser.js"></script>
+    <script src="https://unpkg.com/peek42@latest/dist/peek42.browser.js"></script>
+    <script src="https://unpkg.com/hammerjs@latest/hammer.js"></script>
+    <script src="https://unpkg.com/@emmetio/expand-abbreviation@latest/dist/expand-full.js"></script>
+    <script src="../dist/poke43.browser.js"></script>
+    <script src="https://unpkg.com/codemirror@latest/lib/codemirror.js"></script>
+      <!-- addon/fold -->
+      <script src="https://unpkg.com/codemirror@latest/addon/fold/foldgutter.js"></script>
+      <script src="https://unpkg.com/codemirror@latest/addon/fold/foldcode.js"></script>
+      <script src="https://unpkg.com/codemirror@latest/addon/fold/comment-fold.js"></script>
+      <script src="https://unpkg.com/codemirror@latest/addon/fold/brace-fold.js"></script>
+      <!-- addon/edit -->
+      <script src="https://unpkg.com/codemirror@latest/addon/edit/matchbrackets.js"></script>
+      <!-- mode -->
+      <script src="https://unpkg.com/codemirror@latest/mode/javascript/javascript.js"></script>
+
+    <script>(() => { 'use strict';
+const {Poke} = poke43;
+
+document.addEventListener('DOMContentLoaded', () => {
+  let poke = new Poke(document.getElementById('poke'), {
+    codemirror: {
+      gutters: [
+        'CodeMirror-linenumbers',
+        'CodeMirror-foldgutter'
+      ],
+      lineNumbers: true,
+      foldGutter: {
+        rangeFinder: new CodeMirror.fold.combine(
+          CodeMirror.fold.comment,
+          CodeMirror.fold.brace
+        )
+      },
+      matchBrackets: true,
+      mode: 'text/javascript'
+    }
+  });
+
+  poke._editor.content = `class Foo {
+  constructor(bar) {
+    this._bar = bar;
+  }
+
+  get bar() {
+    return this._bar;
+  }
+}
+
+let foo = new Foo(42);
+
+console.log(foo.bar);
+`;
+});
+    })();</script>
+  </head>
+
+  <body>
+<h1 id="about">Poke43 (CodeMirror)</h1>
+
+<div id="poke">
+</div>
+  </body>
+</html>
