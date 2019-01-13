@@ -23,19 +23,30 @@ import Keyboard, {
 import {pokeized} from './codemirror';
 
 class Poke {
-  constructor(el) {
+  constructor(el, {
+    codemirror = null
+  } = {}) {
     this._el = el;
-    this._elEditor = document.createElement('div');
-    this._editor = new Editor(this._elEditor);
-    this._elKeyboard = document.createElement('div');
-    this._keyboard = new Keyboard(this._editor, this._elKeyboard);
 
     this._el.classList.add('poke43-poke');
-    this._el.textContent = '';
-    this._el.appendChild(this._elEditor);
-    this._el.appendChild(this._elKeyboard);
 
-    this._editor._hammer.on('tap', ev => this._keyboard.show());
+    if (codemirror) {
+      Poke.PokeMirror = Poke.PokeMirror || pokeized(CodeMirror);
+
+      this._editor = new Poke.PokeMirror(this._el, codemirror);
+      this._keyboard = this._editor._keyboard;
+    } else {
+      this._elEditor = document.createElement('div');
+      this._editor = new Editor(this._elEditor);
+      this._elKeyboard = document.createElement('div');
+      this._keyboard = new Keyboard(this._editor, this._elKeyboard);
+
+      this._el.textContent = '';
+      this._el.appendChild(this._elEditor);
+      this._el.appendChild(this._elKeyboard);
+
+      this._editor._hammer.on('tap', ev => this._keyboard.show());
+    }
   }
 }
 
