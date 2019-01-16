@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en" style="font-family: Avenir, sans-serif;">
+<html lang="en" class="tight sans-serif">
   <head>
     <meta charset="utf-8" />
 
@@ -13,10 +13,20 @@
       <link rel="stylesheet" href="https://unpkg.com/codemirror@latest/addon/fold/foldgutter.css" />
 
     <style>
+.tight {
+  margin: 0;
+  padding: 0;
+}
+
+.sans-serif {
+  font-family: Avenir, sans-serif;
+}
+
 .CodeMirror {
-  height: 70vh;
+  height: 80vh;
   overflow: auto;
   border: 1px solid silver;
+  border-radius: 0.5ex;
   font-family: Monofur, monospace;
   font-size: 1.3em;
   line-height: 1.1em;
@@ -80,7 +90,7 @@ console.log(foo.bar);
   </head>
 
   <body>
-<h1 id="about">Poke43 - CodeMirror</h1>
+<h1 class="tight" id="about">Poke43 - CodeMirror</h1>
 
 <div id="poke">
 </div>
