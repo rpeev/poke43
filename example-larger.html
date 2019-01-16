@@ -16,6 +16,11 @@
       <link rel="stylesheet" id="poke43-dark-css" />
 
     <style>
+.tight {
+  margin: 0;
+  padding: 0;
+}
+
 .light {
   background: #f5f5f5;
   color: black;
@@ -47,9 +52,10 @@
 }
 
 .CodeMirror {
-  height: 70vh;
+  height: 79vh;
   overflow: auto;
-  border: 1px solid silver;
+  border: 1px solid gray;
+  border-radius: 0.5ex;
   font-family: Monofur, monospace;
   font-size: 1.3em;
   line-height: 1.1em;
@@ -180,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   </head>
 
   <body>
-<h1 id="about">Poke43 - larger example [<a href="./index.html">Index</a>]
+<h1 class="tight" id="about">Poke43 - larger example [<a href="./index.html">Index</a>]
   <button id="switch-theme">Dark Theme</button>
   <button id="load-content">Load Content</button>
   <button id="clear-editor">Clear Editor</button>
