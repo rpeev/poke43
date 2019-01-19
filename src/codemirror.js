@@ -76,6 +76,7 @@ const editorMixin = {
   },
 
   deleteBackward() {
+    // TODO: Handle auto close brackets addon backspace?
     if (this.getSelection().length === 0) {
       this.execCommand('delCharBefore');
     }
@@ -114,24 +115,31 @@ const editorMixin = {
       switch (text) {
       case '(': case '[': case '{':
       case ')': case ']': case '}':
-      case '\'': case '"': case '`':
+      case '\'': case '"': case '`': {
+        let start = this.getCursor().ch;
         brackets[`'${text}'`](this);
+        let changed = (start !== this.getCursor().ch);
+
+        if (!changed) {
+          this.replaceRange(text, this.getCursor());
+        }
 
         break;
-      case '\n':
-        let cursor = this.getCursor();
+      } case '\n': {
+        let start = this.getCursor().line;
         brackets.Enter(this);
-        let cursorAfterBrackets = this.getCursor();
+        let changed = (start !== this.getCursor().line);
 
-        if (cursor.line === cursorAfterBrackets.line) {
+        if (!changed) {
           this.execCommand('newlineAndIndent');
         }
 
         break;
-      default:
+      } default:
         this.replaceRange(text, this.getCursor());
       }
     } else {
+      // TODO: Wrap selection on certain characters (auto close brackets addon pairs)?
       this.replaceSelection((text.match(/\s/)) ? '' : text);
     }
 
