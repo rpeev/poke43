@@ -116,9 +116,14 @@ const editorMixin = {
       case '(': case '[': case '{':
       case ')': case ']': case '}':
       case '\'': case '"': case '`': {
-        let start = this.getCursor().ch;
-        brackets[`'${text}'`](this);
-        let changed = (start !== this.getCursor().ch);
+        let fn = brackets[`'${text}'`];
+        let changed = false;
+
+        if (fn) {
+          let start = this.getCursor().ch;
+          fn(this);
+          changed = (start !== this.getCursor().ch);
+        }
 
         if (!changed) {
           this.replaceRange(text, this.getCursor());
@@ -126,9 +131,14 @@ const editorMixin = {
 
         break;
       } case '\n': {
-        let start = this.getCursor().line;
-        brackets.Enter(this);
-        let changed = (start !== this.getCursor().line);
+        let fn = brackets.Enter;
+        let changed = false;
+
+        if (fn) {
+          let start = this.getCursor().line;
+          fn(this);
+          changed = (start !== this.getCursor().line);
+        }
 
         if (!changed) {
           this.execCommand('newlineAndIndent');
