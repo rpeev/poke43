@@ -13,6 +13,10 @@ const initialize = opts => Object.assign(opts, {
   readOnly: 'nocursor'
 });
 
+const getAutoCloseBracketsMap = inst =>
+  ((inst.state || {}).keyMaps || []).
+    find(map => "'('" in map);
+
 // Poke43 editor interface (without getters/setters)
 // implemented in terms of a CodeMirror instance (this)
 const editorMixin = {
@@ -101,10 +105,36 @@ const editorMixin = {
 
   insert(text) {
     if (this.getSelection().length === 0) {
-      this.replaceRange(text, this.getCursor());
+      let brackets = this._autoCloseBracketsMap;
+
+      if (!brackets) {
+        return this.replaceRange(text, this.getCursor()), this;
+      }
+
+      switch (text) {
+      case '(': case '[': case '{':
+      case ')': case ']': case '}':
+      case '\'': case '"': case '`':
+        brackets[`'${text}'`](this);
+
+        break;
+      case '\n':
+        let cursor = this.getCursor();
+        brackets.Enter(this);
+        let cursorAfterBrackets = this.getCursor();
+
+        if (cursor.line === cursorAfterBrackets.line) {
+          this.execCommand('newlineAndIndent');
+        }
+
+        break;
+      default:
+        this.replaceRange(text, this.getCursor());
+      }
     } else {
       this.replaceSelection((text.match(/\s/)) ? '' : text);
     }
+
     return this;
   },
 
@@ -191,13 +221,13 @@ const pokeized = ctor => class extends ctor {
 
   static fromTextArea(el, opts) {
     let inst = super.fromTextArea(el, initialize(opts));
-
+    inst._autoCloseBracketsMap = getAutoCloseBracketsMap(inst);
     return keyboardize(editorize(inst));
   }
 
   constructor(el, opts) {
     super(el, initialize(opts));
-
+    this._autoCloseBracketsMap = getAutoCloseBracketsMap(this);
     keyboardize(editorize(this));
   }
 };
