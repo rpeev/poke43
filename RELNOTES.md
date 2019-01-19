@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.5.1
+
+* Fix undefined function call bug when addon is not loaded
+
 ## 2.5.0
 
 * Wire CodeMirror auto close brackets and tags addons to poke43 keyboard (the required dependencies have to be managed separately)
