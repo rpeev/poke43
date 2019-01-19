@@ -1,5 +1,9 @@
 # Release Notes
 
+## 2.5.0
+
+* Wire CodeMirror auto close brackets and tags addons to poke43 keyboard (the required dependencies have to be managed separately)
+
 ## 2.4.0
 
 * Add `codemirror` option (either boolean or CodeMirror options object) to `Poke` constructor to use CodeMirror as editor (the required dependencies have to be managed separately)
