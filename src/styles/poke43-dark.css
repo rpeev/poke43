@@ -110,22 +110,24 @@
 /* CodeMirror dark theme (ir_black variant) */
 
 .cm-s-poke43-dark {
-  font-size: 1em;
-  line-height: 1.5em;
-  font-family: monofur, inconsolata, monospace;
   background: #000000;
   color: #EDEDED;
 }
 
 .cm-s-poke43-dark .CodeMirror-lines {
-  padding: 8px 0;
+
 }
 
 .cm-s-poke43-dark .CodeMirror-gutters {
-  background-color: #000000;
-  padding-right: 10px;
   z-index: 3;
   border: none;
+  border-right: 1px solid gray;
+  background: black;
+  opacity: 0.8;
+}
+
+.cm-s-poke43-dark .CodeMirror-linenumber {
+  color: #7C7C7C;
 }
 
 .cm-s-poke43-dark div.CodeMirror-cursor {
@@ -166,8 +168,4 @@
 
 .cm-s-poke43-dark .cm-operator {
   color: #96CBFE;
-}
-
-.cm-s-poke43-dark .CodeMirror-linenumber {
-  color: #7C7C7C;
 }
