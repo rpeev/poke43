@@ -44,10 +44,14 @@
       <script src="https://unpkg.com/codemirror@latest/addon/fold/foldcode.js"></script>
       <script src="https://unpkg.com/codemirror@latest/addon/fold/comment-fold.js"></script>
       <script src="https://unpkg.com/codemirror@latest/addon/fold/brace-fold.js"></script>
+      <script src="https://unpkg.com/codemirror@latest/addon/fold/xml-fold.js"></script>
       <!-- addon/edit -->
       <script src="https://unpkg.com/codemirror@latest/addon/edit/matchbrackets.js"></script>
+      <script src="https://unpkg.com/codemirror@latest/addon/edit/matchtags.js"></script>
       <script src="https://unpkg.com/codemirror@latest/addon/edit/closebrackets.js"></script>
+      <script src="https://unpkg.com/codemirror@latest/addon/edit/closetag.js"></script>
       <!-- mode -->
+      <script src="https://unpkg.com/codemirror@latest/mode/xml/xml.js"></script>
       <script src="https://unpkg.com/codemirror@latest/mode/javascript/javascript.js"></script>
 
     <script>(() => { 'use strict';
@@ -64,11 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
       foldGutter: {
         rangeFinder: new CodeMirror.fold.combine(
           CodeMirror.fold.comment,
-          CodeMirror.fold.brace
+          CodeMirror.fold.brace,
+          CodeMirror.fold.xml
         )
       },
       matchBrackets: true,
+      matchTags: {bothTags: true},
       autoCloseBrackets: true,
+      autoCloseTags: true,
       mode: 'text/javascript'
     }
   });

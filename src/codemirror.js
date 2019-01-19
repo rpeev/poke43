@@ -14,8 +14,14 @@ const initialize = opts => Object.assign(opts, {
 });
 
 const getAutoCloseBracketsMap = inst =>
+  (inst.getOption('autoCloseBrackets') || undefined) &&
   ((inst.state || {}).keyMaps || []).
     find(map => "'('" in map);
+
+const getAutoCloseTagsMap = inst =>
+  (inst.getOption('autoCloseTags') || undefined) &&
+  ((inst.state || {}).keyMaps || []).
+    find(map => map.name === 'autoCloseTags');
 
 // Poke43 editor interface (without getters/setters)
 // implemented in terms of a CodeMirror instance (this)
@@ -104,48 +110,43 @@ const editorMixin = {
     return this;
   },
 
+  _execAddonFunc(fn) {
+    let handled = false;
+
+    if (fn) {
+      let {line: line1, ch: ch1} = this.getCursor();
+      fn(this);
+      let {line: line2, ch: ch2} = this.getCursor();
+      handled = (ch1 !== ch2 || line1 !== line2);
+    }
+
+    return handled;
+  },
+
   insert(text) {
     if (this.getSelection().length === 0) {
       let brackets = this._autoCloseBracketsMap;
+      let tags = this._autoCloseTagsMap;
 
-      if (!brackets) {
+      if ( !(brackets || tags) ) {
         return this.replaceRange(text, this.getCursor()), this;
       }
 
       switch (text) {
-      case '(': case '[': case '{':
-      case ')': case ']': case '}':
-      case '\'': case '"': case '`': {
-        let fn = brackets[`'${text}'`];
-        let changed = false;
-
-        if (fn) {
-          let start = this.getCursor().ch;
-          fn(this);
-          changed = (start !== this.getCursor().ch);
-        }
-
-        if (!changed) {
+      case '>':
+        if (!this._execAddonFunc(tags[`'${text}'`])) {
           this.replaceRange(text, this.getCursor());
-        }
-
-        break;
-      } case '\n': {
-        let fn = brackets.Enter;
-        let changed = false;
-
-        if (fn) {
-          let start = this.getCursor().line;
-          fn(this);
-          changed = (start !== this.getCursor().line);
-        }
-
-        if (!changed) {
+        } break;
+      case '(': case '[': case '{':
+      case '\'': case '"': case '`':
+        if (!this._execAddonFunc(brackets[`'${text}'`])) {
+          this.replaceRange(text, this.getCursor());
+        } break;
+      case '\n':
+        if (!this._execAddonFunc(brackets.Enter)) {
           this.execCommand('newlineAndIndent');
-        }
-
-        break;
-      } default:
+        } break;
+      default:
         this.replaceRange(text, this.getCursor());
       }
     } else {
@@ -231,7 +232,7 @@ const keyboardize = inst => {
 
 // 'pokeized' CodeMirror class factory, use like:
 // const PokeMirror = pokeized(CodeMirror);
-// ...use like the regular CodeMirror ctor (fromTextArea, constructor, etc)
+// Then use like the regular CodeMirror ctor (fromTextArea, constructor, etc)
 const pokeized = ctor => class extends ctor {
   static get [Symbol.toStringTag]() {
     return 'pokeized(CodeMirror)';
@@ -240,12 +241,14 @@ const pokeized = ctor => class extends ctor {
   static fromTextArea(el, opts) {
     let inst = super.fromTextArea(el, initialize(opts));
     inst._autoCloseBracketsMap = getAutoCloseBracketsMap(inst);
+    inst._autoCloseTagsMap = getAutoCloseTagsMap(inst);
     return keyboardize(editorize(inst));
   }
 
   constructor(el, opts) {
     super(el, initialize(opts));
     this._autoCloseBracketsMap = getAutoCloseBracketsMap(this);
+    this._autoCloseTagsMap = getAutoCloseTagsMap(this);
     keyboardize(editorize(this));
   }
 };
