@@ -134,16 +134,16 @@ const editorMixin = {
 
       switch (text) {
       case '>':
-        if (!this._execAddonFunc(tags[`'${text}'`])) {
+        if ( !(tags && this._execAddonFunc(tags[`'${text}'`])) ) {
           this.replaceRange(text, this.getCursor());
         } break;
       case '(': case '[': case '{':
       case '\'': case '"': case '`':
-        if (!this._execAddonFunc(brackets[`'${text}'`])) {
+        if ( !(brackets && this._execAddonFunc(brackets[`'${text}'`])) ) {
           this.replaceRange(text, this.getCursor());
         } break;
       case '\n':
-        if (!this._execAddonFunc(brackets.Enter)) {
+        if ( !(brackets && this._execAddonFunc(brackets.Enter)) ) {
           this.execCommand('newlineAndIndent');
         } break;
       default:
