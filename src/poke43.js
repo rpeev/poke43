@@ -75,7 +75,7 @@ Object.assign(poke43, {
 
 export {
   Poke,
-  pokeize,
+  pokeized,
   Editor,
   EditorModel,
   EditorView,
